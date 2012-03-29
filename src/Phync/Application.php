@@ -92,7 +92,7 @@ return array(
         'baz.example.com',
     ),
     'exclude_from' => '/path/to/exclude.lst',
-    'rsync_path'   => '/usr/bin/rsnyc',
+    'rsync_path'   => '/usr/bin/rsync',
     'rsh'          => '/usr/bin/ssh',
 );
 __EXAMPLE__;
