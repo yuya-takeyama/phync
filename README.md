@@ -19,6 +19,7 @@ rsync -avC --dry-run --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bi
 With `--execute` option, synchronizes specified file.
 
 ```
+$ /path/to/phync --execute file-to-sync
 Generated commands:
 rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'foo.example.com:/home/yuya/dev/php/phync/file-to-sync'
 rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'bar.example.com:/home/yuya/dev/php/phync/file-to-sync'
@@ -32,7 +33,7 @@ Configuration file `$HOME/.phync/config.php` is required.
 
 ### Example
 
-```
+```php
 <?php
 return array(
     'destinations' => array(
