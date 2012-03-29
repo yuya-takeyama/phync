@@ -73,7 +73,7 @@ class Phync_Application
                 throw new RuntimeException($this->getConfigExample($e->getMessage()));
             }
         } else {
-            throw new RuntimeException($this->getConfigExample("Configuration file \"{$config}\" not found."));
+            throw new RuntimeException($this->getConfigExample("Configuration file \"{$file}\" not found."));
         }
     }
 
@@ -93,6 +93,7 @@ return array(
     ),
     'exclude_from' => '/path/to/exclude.lst',
     'rsync_path'   => '/usr/bin/rsnyc',
+    'rsh'          => '/usr/bin/ssh',
 );
 __EXAMPLE__;
     }
