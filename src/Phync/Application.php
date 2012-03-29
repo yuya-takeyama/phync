@@ -93,6 +93,7 @@ return array(
     ),
     'exclude_from' => '/path/to/exclude.lst',
     'rsync_path'   => '/usr/bin/rsnyc',
+    'rsh'          => '/usr/bin/ssh',
 );
 __EXAMPLE__;
     }
