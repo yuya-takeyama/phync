@@ -6,5 +6,5 @@ require_once dirname(__FILE__) . '/Phync/Option.php';
 
 class Phync
 {
-    const VERSION = '0.0.1';
+    const VERSION = '0.0.2';
 }
