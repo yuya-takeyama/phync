@@ -25,6 +25,27 @@ rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '
 rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'baz.example.com:/home/yuya/dev/php/phync/file-to-sync'
 ```
 
+Configuration
+-------------
+
+Configuration file `$HOME/.phync/config.php` is required.
+
+### Example
+
+```
+<?php
+return array(
+    'destinations' => array(
+        'foo.example.com',
+        'bar.example.com',
+        'baz.example.com',
+    ),
+    'exclude_from' => 'exclude.lst',
+    'rsync_path'   => '/usr/bin/rsync',
+    'rsh'          => '/usr/bin/ssh',
+);
+```
+
 Author
 ------
 
