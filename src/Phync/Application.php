@@ -73,7 +73,7 @@ class Phync_Application
                 throw new RuntimeException($this->getConfigExample($e->getMessage()));
             }
         } else {
-            throw new RuntimeException($this->getConfigExample("Configuration file \"{$config}\" not found."));
+            throw new RuntimeException($this->getConfigExample("Configuration file \"{$file}\" not found."));
         }
     }
 
