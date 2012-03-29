@@ -49,12 +49,12 @@ class Phync_Application
             foreach ($commands as $command) {
                 echo $command, PHP_EOL;
             }
+            echo PHP_EOL;
+            echo "Executing rsync command...", PHP_EOL;
+            foreach ($commands as $command) {
+                passthru($command);
+            }
             if ($this->option->isDryRun() === false) {
-                echo PHP_EOL;
-                echo "Executing rsync command...", PHP_EOL;
-                foreach ($commands as $command) {
-                    passthru($command);
-                }
                 echo PHP_EOL, "Exit in execute mode.", PHP_EOL;
             } else {
                 echo PHP_EOL, "Exit in dry-run mode.", PHP_EOL;
