@@ -20,7 +20,7 @@ class Phync_CommandGenerator
                 $command .= ' ' . escapeshellarg("--rsh={$config->getRsh()}");
             }
             foreach ($option->getFiles() as $file) {
-                $commands[] = $command . ' ' . escapeshellarg($file) . ' ' . escapeshellarg("{$destination}:{$file}");
+                $commands[] = $command . ' ' . escapeshellarg($file) . ' ' . escapeshellarg("{$destination}:" . dirname($file));
             }
         }
         return $commands;
