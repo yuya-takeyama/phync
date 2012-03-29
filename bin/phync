@@ -1,8 +1,9 @@
 #!/usr/bin/env php
 <?php
 set_include_path(dirname(__FILE__) . '/../src' . PATH_SEPARATOR . get_include_path());
-require_once 'Phync/Application.php';
+require_once 'Phync.php';
 
+echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
 $app = new Phync_Application($argv, $_SERVER);
 try {
     exit($app->run());
