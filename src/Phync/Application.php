@@ -54,21 +54,20 @@ class Phync_Application
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayCommands'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
+        $this->dispatcher->on('before_all_command_execution', array($this, 'displayBeforeExecutionMessage'));
+        $this->dispatcher->on('after_all_command_execution', array($this, 'displayExitStatus'));
     }
 
     public function run()
     {
         $this->loadConfig();
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
-
         $generator = new Phync_CommandGenerator;
         $commands  = $generator->getCommands($this->config, $this->option);
         $this->dispatcher->dispatch('before_all_command_execution', array(
             'app'      => $this,
             'commands' => $commands
         ));
-
-        echo "Executing rsync command...", PHP_EOL;
         foreach ($commands as $command) {
             $this->dispatcher->dispatch('before_command_execution', array(
                 'app'     => $this,
@@ -81,11 +80,7 @@ class Phync_Application
                 'status'  => $status
             ));
         }
-        if ($this->option->isDryRun() === false) {
-            echo PHP_EOL, "Exit in execute mode.", PHP_EOL;
-        } else {
-            echo PHP_EOL, "Exit in dry-run mode.", PHP_EOL;
-        }
+        $this->dispatcher->dispatch('after_all_command_execution', $this->getEvent());
     }
 
     private function loadConfig()
@@ -197,6 +192,20 @@ __USAGE__;
                 }
             }
             echo "Invalid input.", PHP_EOL;
+        }
+    }
+
+    public function displayBeforeExecutionMessage()
+    {
+        echo "Executing rsync commands...", PHP_EOL;
+    }
+
+    public function displayExitStatus($event)
+    {
+        if ($event->app->getOption()->isDryRun() === false) {
+            echo PHP_EOL, "Exit in execute mode.", PHP_EOL;
+        } else {
+            echo PHP_EOL, "Exit in dry-run mode.", PHP_EOL;
         }
     }
 }
