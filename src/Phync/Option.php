@@ -13,13 +13,8 @@ class Phync_Option
         $opt = new Console_Getopt;
         list($options, $files) = $opt->getopt($argv, '', array('execute'));
         $this->options = $options;
-        // @TODO コンストラクタでは存在チェックをしないようにする
         foreach ($files as $key => $value) {
-            if (file_exists($value)) {
-                $files[$key] = File_Util::realPath($value);
-            } else {
-                throw new RuntimeException("File Not Found: {$value}");
-            }
+            $files[$key] = File_Util::realPath($value);
         }
         $this->files   = $files;
 

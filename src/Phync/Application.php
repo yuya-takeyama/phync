@@ -2,6 +2,7 @@
 require_once dirname(__FILE__) . '/Config.php';
 require_once dirname(__FILE__) . '/Option.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
+require_once dirname(__FILE__) . '/FileNotFoundException.php';
 
 /**
  * Phync: Simple rsync wrapper in PHP.
@@ -43,6 +44,12 @@ class Phync_Application
         if ($this->option->hasFiles() === false) {
             throw new RuntimeException($this->getUsage("No files are specified."));
         } else {
+            foreach ($this->option->getFiles() as $file) {
+                if (!file_exists($file)) {
+                    throw new Phync_FileNotFoundException("File Not Found: {$file}");
+                }
+            }
+
             $generator = new Phync_CommandGenerator;
             $commands  = $generator->getCommands($this->config, $this->option);
             echo "Generated commands:", PHP_EOL;
