@@ -47,7 +47,7 @@ return array(
 );
 ```
 
-ToDO
+ToDo
 ----
 
 - Logging.
