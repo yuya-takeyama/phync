@@ -35,6 +35,7 @@ class Phync_CommandGenerator
      */
     private function getFileArgument($destination, $file)
     {
+        $file = File_Util::realPath($file);
         return escapeshellarg($file) . ' ' . escapeshellarg("{$destination}:" . dirname($file));
     }
 }
