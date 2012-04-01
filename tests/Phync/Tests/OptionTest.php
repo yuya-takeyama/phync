@@ -59,6 +59,15 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($option->hasFiles());
     }
 
+    /**
+     * @test
+     */
+    public function getFiles_ファイル名が指定されていなければ空の配列()
+    {
+        $option = $this->createOption();
+        $this->assertEquals(array(), $option->getFiles());
+    }
+
     private function createOption()
     {
         $argv = array_merge(array('phync'), func_get_args());
