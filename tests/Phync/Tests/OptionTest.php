@@ -68,6 +68,15 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $option->getFiles());
     }
 
+    /**
+     * @test
+     */
+    public function getFiles_指定されたファイル名を配列で取得する()
+    {
+        $option = $this->createOption('foo.txt', 'bar.txt');
+        $this->assertEquals(array('foo.txt', 'bar.txt'), $option->getFiles());
+    }
+
     private function createOption()
     {
         $argv = array_merge(array('phync'), func_get_args());
