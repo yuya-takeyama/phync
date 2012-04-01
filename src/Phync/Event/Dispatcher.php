@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__FILE__) . '/Event.php';
+require_once dirname(__FILE__) . '/ObserverInterface.php';
 
 class Phync_Event_Dispatcher
 {
@@ -7,6 +8,8 @@ class Phync_Event_Dispatcher
      * @var array<Phync_Event_ListenerInterface>
      */
     private $listeners = array();
+
+    private $observers = array();
 
     /**
      * イベントリスナーの追加.
@@ -20,6 +23,11 @@ class Phync_Event_Dispatcher
             $this->listeners[$eventName] = array();
         }
         $this->listeners[$eventName][] = $listener;
+    }
+
+    public function addObserver(Phync_Event_ObserverInterface $observer)
+    {
+        $this->observers[] = $observer;
     }
 
     /**
@@ -36,8 +44,14 @@ class Phync_Event_Dispatcher
         } else if (is_array($event)) {
             $event = new Phync_Event_Event($event);
         }
-        foreach ($this->listeners[$eventName] as $listener) {
-            call_user_func($listener, $event);
+        $event->setName($eventName);
+        foreach ($this->observers as $observer) {
+            call_user_func(array($observer, 'update'), $event);
+        }
+        if (array_key_exists($eventName, $this->listeners)) {
+            foreach ($this->listeners[$eventName] as $listener) {
+                call_user_func($listener, $event);
+            }
         }
     }
 }

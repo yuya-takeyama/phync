@@ -3,6 +3,7 @@ require_once dirname(__FILE__) . '/Config.php';
 require_once dirname(__FILE__) . '/Option.php';
 require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
+require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
 require_once dirname(__FILE__) . '/ConfigNotFoundException.php';
 require_once dirname(__FILE__) . '/ArgumentException.php';
@@ -46,6 +47,8 @@ class Phync_Application
         $this->option     = new Phync_Option($argv);
         $this->dispatcher = new Phync_Event_Dispatcher;
 
+        $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
+
         $this->dispatcher->on('after_config_loading', array($this, 'validateOption'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
     }
@@ -64,7 +67,16 @@ class Phync_Application
         echo PHP_EOL;
         echo "Executing rsync command...", PHP_EOL;
         foreach ($commands as $command) {
-            passthru($command);
+            $this->dispatcher->dispatch('before_command_execution', array(
+                'app'     => $this,
+                'command' => $command,
+            ));
+            passthru($command, $status);
+            $this->dispatcher->dispatch('after_command_execution', array(
+                'app'     => $this,
+                'command' => $command,
+                'status'  => $status
+            ));
         }
         if ($this->option->isDryRun() === false) {
             echo PHP_EOL, "Exit in execute mode.", PHP_EOL;
@@ -87,6 +99,12 @@ class Phync_Application
         } else {
             throw new Phync_ConfigNotFoundException($this->getConfigExample("Configuration file \"{$file}\" is not found."));
         }
+    }
+
+    public function getLogDirectory()
+    {
+        return $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync' .
+            DIRECTORY_SEPARATOR . 'log';
     }
 
     public function getConfigExample($message)
