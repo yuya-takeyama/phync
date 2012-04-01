@@ -1,12 +1,14 @@
 Phync
 =====
 
-Simple rsync wrapper in PHP.
+PHP によるシンプルな `rsync` ラッパ.
 
 Usage
 -----
 
-Calls `rsync` with `--dry-run` option by default.
+引数としてファイルを指定すると, 階層を保持して対象サーバに `rsync` します.
+
+デフォルトでは `--dry-run` オプションの指定によるドライランとなります.
 
 ```
 $ /path/to/phync file-to-sync
@@ -16,7 +18,7 @@ rsync -avC --dry-run --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bi
 rsync -avC --dry-run --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'baz.example.com:/home/yuya/dev/php/phync/file-to-sync'
 ```
 
-With `--execute` option, synchronizes specified file.
+`--execute` オプションを指定することで, 実際の同期を実行します.
 
 ```
 $ /path/to/phync --execute file-to-sync
@@ -29,7 +31,7 @@ rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '
 Configuration
 -------------
 
-Configuration file `$HOME/.phync/config.php` is required.
+`$HOME/.phync/config/config.php` に設定ファイルが必要です.
 
 ### Example
 
@@ -46,11 +48,6 @@ return array(
     'rsh'          => '/usr/bin/ssh',
 );
 ```
-
-ToDO
-----
-
-- Logging.
 
 Author
 ------

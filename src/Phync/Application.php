@@ -1,7 +1,14 @@
 <?php
 require_once dirname(__FILE__) . '/Config.php';
 require_once dirname(__FILE__) . '/Option.php';
+require_once dirname(__FILE__) . '/Event/Dispatcher.php';
+require_once dirname(__FILE__) . '/Event/Event.php';
+require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
+require_once dirname(__FILE__) . '/ConfigNotFoundException.php';
+require_once dirname(__FILE__) . '/ArgumentException.php';
+require_once dirname(__FILE__) . '/FileNotFoundException.php';
+require_once dirname(__FILE__) . '/AbortException.php';
 
 /**
  * Phync: Simple rsync wrapper in PHP.
@@ -13,6 +20,11 @@ class Phync_Application
     const STATUS_EXCEPTION = 255;
 
     private $env;
+
+    /**
+     * @var Phync_Event_Dispatcher
+     */
+    private $dispatcher;
 
     /**
      * @var Phync_Option
@@ -32,39 +44,49 @@ class Phync_Application
      */
     public function __construct($argv, $env)
     {
-        $this->env    = $env;
-        $this->option = new Phync_Option($argv);
+        $this->env        = $env;
+        $this->option     = new Phync_Option($argv);
+        $this->dispatcher = new Phync_Event_Dispatcher;
+
+        $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
+
+        $this->dispatcher->on('after_config_loading', array($this, 'validateOption'));
+        $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
+        $this->dispatcher->on('before_all_command_execution', array($this, 'displayCommands'));
+        $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
+        $this->dispatcher->on('before_all_command_execution', array($this, 'displayBeforeExecutionMessage'));
+        $this->dispatcher->on('after_all_command_execution', array($this, 'displayExitStatus'));
     }
 
     public function run()
     {
         $this->loadConfig();
-
-        if ($this->option->hasFiles() === false) {
-            throw new RuntimeException($this->getUsage("No files are specified."));
-        } else {
-            $generator = new Phync_CommandGenerator;
-            $commands  = $generator->getCommands($this->config, $this->option);
-            echo "Generated commands:", PHP_EOL;
-            foreach ($commands as $command) {
-                echo $command, PHP_EOL;
-            }
-            echo PHP_EOL;
-            echo "Executing rsync command...", PHP_EOL;
-            foreach ($commands as $command) {
-                passthru($command);
-            }
-            if ($this->option->isDryRun() === false) {
-                echo PHP_EOL, "Exit in execute mode.", PHP_EOL;
-            } else {
-                echo PHP_EOL, "Exit in dry-run mode.", PHP_EOL;
-            }
+        $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
+        $generator = new Phync_CommandGenerator;
+        $commands  = $generator->getCommands($this->config, $this->option);
+        $this->dispatcher->dispatch('before_all_command_execution', array(
+            'app'      => $this,
+            'commands' => $commands
+        ));
+        foreach ($commands as $command) {
+            $this->dispatcher->dispatch('before_command_execution', array(
+                'app'     => $this,
+                'command' => $command,
+            ));
+            passthru($command, $status);
+            $this->dispatcher->dispatch('after_command_execution', array(
+                'app'     => $this,
+                'command' => $command,
+                'status'  => $status
+            ));
         }
+        $this->dispatcher->dispatch('after_all_command_execution', $this->getEvent());
     }
 
     private function loadConfig()
     {
-        $file = $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync/config.php';
+        $file = $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync' .
+            DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
         if (file_exists($file) && is_readable($file)) {
             $config = include $file;
             try {
@@ -73,14 +95,20 @@ class Phync_Application
                 throw new RuntimeException($this->getConfigExample($e->getMessage()));
             }
         } else {
-            throw new RuntimeException($this->getConfigExample("Configuration file \"{$file}\" not found."));
+            throw new Phync_ConfigNotFoundException($this->getConfigExample("Configuration file \"{$file}\" is not found."));
         }
+    }
+
+    public function getLogDirectory()
+    {
+        return $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync' .
+            DIRECTORY_SEPARATOR . 'log';
     }
 
     public function getConfigExample($message)
     {
         return <<<__EXAMPLE__
-Config Error: {$message}
+{$message}
 
 Example:
 <?php
@@ -101,10 +129,83 @@ __EXAMPLE__;
     public function getUsage($message)
     {
         return <<<__USAGE__
-Argument Error: {$message}
+{$message}
 
 Usage:
   phync [--execute] file [more files...]
 __USAGE__;
+    }
+
+    public function getOption()
+    {
+        return $this->option;
+    }
+
+    public function getEvent()
+    {
+        return new Phync_Event_Event(array('app' => $this));
+    }
+
+    public static function validateOption($event)
+    {
+        $app = $event->app;
+        if (!$app->getOption()->hasFiles()) {
+            throw new Phync_ArgumentException($app->getUsage("No files are specified."));
+        }
+    }
+
+    public static function validateFiles($event)
+    {
+        $files = $event->app->getOption()->getFiles();
+        foreach ($files as $file) {
+            if (!file_exists($file)) {
+                throw new Phync_FileNotFoundException("\"{$file}\" is not found.");
+            }
+        }
+    }
+
+    public function displayCommands($event)
+    {
+        echo "Generated commands:", PHP_EOL;
+        foreach ($event->commands as $command) {
+            echo $command, PHP_EOL;
+        }
+    }
+
+    public function confirmExecution($event)
+    {
+        if ($event->app->option->isDryRun()) {
+            return;
+        }
+        while (true) {
+            echo "Execute these commands? (Y/N) [N]: ";
+            $answer = fgets(STDIN);
+            if (is_string($answer)) {
+                $flag = strtoupper(substr(chop($answer), 0, 1));
+                if ($flag === '') {
+                    $flag = 'N';
+                }
+                if ($flag === 'Y') {
+                    return;
+                } else if ($flag === 'N') {
+                    throw new Phync_AbortException('Aborted execution.');
+                }
+            }
+            echo "Invalid input.", PHP_EOL;
+        }
+    }
+
+    public function displayBeforeExecutionMessage()
+    {
+        echo "Executing rsync commands...", PHP_EOL;
+    }
+
+    public function displayExitStatus($event)
+    {
+        if ($event->app->getOption()->isDryRun() === false) {
+            echo PHP_EOL, "Exit in execute mode.", PHP_EOL;
+        } else {
+            echo PHP_EOL, "Exit in dry-run mode.", PHP_EOL;
+        }
     }
 }
