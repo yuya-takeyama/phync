@@ -33,6 +33,8 @@ class Phync_Event_Dispatcher
     {
         if (is_null($event)) {
             $event = new Phync_Event_Event;
+        } else if (is_array($event)) {
+            $event = new Phync_Event_Event($event);
         }
         foreach ($this->listeners[$eventName] as $listener) {
             call_user_func($listener, $event);

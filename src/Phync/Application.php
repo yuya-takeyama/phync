@@ -1,6 +1,8 @@
 <?php
 require_once dirname(__FILE__) . '/Config.php';
 require_once dirname(__FILE__) . '/Option.php';
+require_once dirname(__FILE__) . '/Event/Dispatcher.php';
+require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
 require_once dirname(__FILE__) . '/FileNotFoundException.php';
 
@@ -14,6 +16,11 @@ class Phync_Application
     const STATUS_EXCEPTION = 255;
 
     private $env;
+
+    /**
+     * @var Phync_Event_Dispatcher
+     */
+    private $dispatcher;
 
     /**
      * @var Phync_Option
@@ -33,8 +40,11 @@ class Phync_Application
      */
     public function __construct($argv, $env)
     {
-        $this->env    = $env;
-        $this->option = new Phync_Option($argv);
+        $this->env        = $env;
+        $this->option     = new Phync_Option($argv);
+        $this->dispatcher = new Phync_Event_Dispatcher;
+
+        $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
     }
 
     public function run()
@@ -44,11 +54,7 @@ class Phync_Application
         if ($this->option->hasFiles() === false) {
             throw new RuntimeException($this->getUsage("No files are specified."));
         } else {
-            foreach ($this->option->getFiles() as $file) {
-                if (!file_exists($file)) {
-                    throw new Phync_FileNotFoundException("File Not Found: {$file}");
-                }
-            }
+            $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
 
             $generator = new Phync_CommandGenerator;
             $commands  = $generator->getCommands($this->config, $this->option);
@@ -113,5 +119,25 @@ Argument Error: {$message}
 Usage:
   phync [--execute] file [more files...]
 __USAGE__;
+    }
+
+    public function getOption()
+    {
+        return $this->option;
+    }
+
+    public function getEvent()
+    {
+        return new Phync_Event_Event(array('app' => $this));
+    }
+
+    public static function validateFiles($event)
+    {
+        $files = $event->app->getOption()->getFiles();
+        foreach ($files as $file) {
+            if (!file_exists($file)) {
+                throw new Phync_FileNotFoundException("File Not Found: {$file}");
+            }
+        }
     }
 }
