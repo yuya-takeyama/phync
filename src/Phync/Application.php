@@ -8,6 +8,7 @@ require_once dirname(__FILE__) . '/CommandGenerator.php';
 require_once dirname(__FILE__) . '/ConfigNotFoundException.php';
 require_once dirname(__FILE__) . '/ArgumentException.php';
 require_once dirname(__FILE__) . '/FileNotFoundException.php';
+require_once dirname(__FILE__) . '/AbortException.php';
 
 /**
  * Phync: Simple rsync wrapper in PHP.
@@ -52,6 +53,7 @@ class Phync_Application
         $this->dispatcher->on('after_config_loading', array($this, 'validateOption'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayCommands'));
+        $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
     }
 
     public function run()
@@ -173,6 +175,28 @@ __USAGE__;
         foreach ($event->commands as $command) {
             echo $command, PHP_EOL;
         }
-        echo PHP_EOL;
+    }
+
+    public function confirmExecution($event)
+    {
+        if ($event->app->option->isDryRun()) {
+            return;
+        }
+        while (true) {
+            echo "Execute these commands? (Y/N) [N]: ";
+            $answer = fgets(STDIN);
+            if (is_string($answer)) {
+                $flag = strtoupper(substr(chop($answer), 0, 1));
+                if ($flag === '') {
+                    $flag = 'N';
+                }
+                if ($flag === 'Y') {
+                    return;
+                } else if ($flag === 'N') {
+                    throw new Phync_AbortException('Aborted execution.');
+                }
+            }
+            echo "Invalid input.", PHP_EOL;
+        }
     }
 }
