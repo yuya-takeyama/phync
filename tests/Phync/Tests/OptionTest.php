@@ -15,6 +15,26 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function isDryRun_setExecuteでtrueを指定したらfalseになる()
+    {
+        $option = $this->createOption();
+        $option->setExecute(true);
+        $this->assertFalse($option->isDryRun());
+    }
+
+    /**
+     * @test
+     */
+    public function isDryRun_setExecuteでfalseを指定したらtrueになる()
+    {
+        $option = $this->createOption();
+        $option->setExecute(false);
+        $this->assertTrue($option->isDryRun());
+    }
+
+    /**
+     * @test
+     */
     public function isDryRun_executeオプションが指定されていればfalse()
     {
         $option = $this->createOption('--execute');
