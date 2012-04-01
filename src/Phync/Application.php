@@ -51,6 +51,7 @@ class Phync_Application
 
         $this->dispatcher->on('after_config_loading', array($this, 'validateOption'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
+        $this->dispatcher->on('before_all_command_execution', array($this, 'displayCommands'));
     }
 
     public function run()
@@ -60,11 +61,11 @@ class Phync_Application
 
         $generator = new Phync_CommandGenerator;
         $commands  = $generator->getCommands($this->config, $this->option);
-        echo "Generated commands:", PHP_EOL;
-        foreach ($commands as $command) {
-            echo $command, PHP_EOL;
-        }
-        echo PHP_EOL;
+        $this->dispatcher->dispatch('before_all_command_execution', array(
+            'app'      => $this,
+            'commands' => $commands
+        ));
+
         echo "Executing rsync command...", PHP_EOL;
         foreach ($commands as $command) {
             $this->dispatcher->dispatch('before_command_execution', array(
@@ -164,5 +165,14 @@ __USAGE__;
                 throw new Phync_FileNotFoundException("\"{$file}\" is not found.");
             }
         }
+    }
+
+    public function displayCommands($event)
+    {
+        echo "Generated commands:", PHP_EOL;
+        foreach ($event->commands as $command) {
+            echo $command, PHP_EOL;
+        }
+        echo PHP_EOL;
     }
 }
