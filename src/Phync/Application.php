@@ -4,6 +4,7 @@ require_once dirname(__FILE__) . '/Option.php';
 require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
+require_once dirname(__FILE__) . '/ArgumentException.php';
 require_once dirname(__FILE__) . '/FileNotFoundException.php';
 
 /**
@@ -44,34 +45,30 @@ class Phync_Application
         $this->option     = new Phync_Option($argv);
         $this->dispatcher = new Phync_Event_Dispatcher;
 
+        $this->dispatcher->on('after_config_loading', array($this, 'validateOption'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
     }
 
     public function run()
     {
         $this->loadConfig();
+        $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
 
-        if ($this->option->hasFiles() === false) {
-            throw new RuntimeException($this->getUsage("No files are specified."));
+        $generator = new Phync_CommandGenerator;
+        $commands  = $generator->getCommands($this->config, $this->option);
+        echo "Generated commands:", PHP_EOL;
+        foreach ($commands as $command) {
+            echo $command, PHP_EOL;
+        }
+        echo PHP_EOL;
+        echo "Executing rsync command...", PHP_EOL;
+        foreach ($commands as $command) {
+            passthru($command);
+        }
+        if ($this->option->isDryRun() === false) {
+            echo PHP_EOL, "Exit in execute mode.", PHP_EOL;
         } else {
-            $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
-
-            $generator = new Phync_CommandGenerator;
-            $commands  = $generator->getCommands($this->config, $this->option);
-            echo "Generated commands:", PHP_EOL;
-            foreach ($commands as $command) {
-                echo $command, PHP_EOL;
-            }
-            echo PHP_EOL;
-            echo "Executing rsync command...", PHP_EOL;
-            foreach ($commands as $command) {
-                passthru($command);
-            }
-            if ($this->option->isDryRun() === false) {
-                echo PHP_EOL, "Exit in execute mode.", PHP_EOL;
-            } else {
-                echo PHP_EOL, "Exit in dry-run mode.", PHP_EOL;
-            }
+            echo PHP_EOL, "Exit in dry-run mode.", PHP_EOL;
         }
     }
 
@@ -129,6 +126,14 @@ __USAGE__;
     public function getEvent()
     {
         return new Phync_Event_Event(array('app' => $this));
+    }
+
+    public static function validateOption($event)
+    {
+        $app = $event->app;
+        if (!$app->getOption()->hasFiles()) {
+            throw new Phync_ArgumentException($app->getUsage("No files are specified."));
+        }
     }
 
     public static function validateFiles($event)
