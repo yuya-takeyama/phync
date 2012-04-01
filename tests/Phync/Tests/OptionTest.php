@@ -21,6 +21,24 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($option->isDryRun());
     }
 
+    /**
+     * @test
+     */
+    public function hasFiles_ファイル名の指定が無ければfalse()
+    {
+        $option = $this->createOption();
+        $this->assertFalse($option->hasFiles());
+    }
+
+    /**
+     * @test
+     */
+    public function hasFiles_ファイル名が指定されていればtrue()
+    {
+        $option = $this->createOption('README.md');
+        $this->assertTrue($option->hasFiles());
+    }
+
     private function createOption()
     {
         $argv = array_merge(array('phync'), func_get_args());
