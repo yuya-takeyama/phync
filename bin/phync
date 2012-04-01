@@ -8,6 +8,7 @@ try {
     $app = new Phync_Application($argv, $_SERVER);
     exit($app->run());
 } catch (Exception $e) {
-    echo $e->getMessage(), PHP_EOL;
+    $klass = get_class($e);
+    echo "{$klass}: {$e->getMessage()}", PHP_EOL;
     exit(Phync_Application::STATUS_EXCEPTION);
 }

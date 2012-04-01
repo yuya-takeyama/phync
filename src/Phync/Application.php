@@ -4,6 +4,7 @@ require_once dirname(__FILE__) . '/Option.php';
 require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
+require_once dirname(__FILE__) . '/ConfigNotFoundException.php';
 require_once dirname(__FILE__) . '/ArgumentException.php';
 require_once dirname(__FILE__) . '/FileNotFoundException.php';
 
@@ -83,14 +84,14 @@ class Phync_Application
                 throw new RuntimeException($this->getConfigExample($e->getMessage()));
             }
         } else {
-            throw new RuntimeException($this->getConfigExample("Configuration file \"{$file}\" not found."));
+            throw new Phync_ConfigNotFoundException($this->getConfigExample("Configuration file \"{$file}\" is not found."));
         }
     }
 
     public function getConfigExample($message)
     {
         return <<<__EXAMPLE__
-Config Error: {$message}
+{$message}
 
 Example:
 <?php
@@ -111,7 +112,7 @@ __EXAMPLE__;
     public function getUsage($message)
     {
         return <<<__USAGE__
-Argument Error: {$message}
+{$message}
 
 Usage:
   phync [--execute] file [more files...]
@@ -141,7 +142,7 @@ __USAGE__;
         $files = $event->app->getOption()->getFiles();
         foreach ($files as $file) {
             if (!file_exists($file)) {
-                throw new Phync_FileNotFoundException("File Not Found: {$file}");
+                throw new Phync_FileNotFoundException("\"{$file}\" is not found.");
             }
         }
     }
