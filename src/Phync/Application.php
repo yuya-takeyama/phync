@@ -75,7 +75,8 @@ class Phync_Application
 
     private function loadConfig()
     {
-        $file = $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync/config.php';
+        $file = $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync' .
+            DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
         if (file_exists($file) && is_readable($file)) {
             $config = include $file;
             try {
