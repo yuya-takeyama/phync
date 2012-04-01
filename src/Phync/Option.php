@@ -1,5 +1,6 @@
 <?php
 require_once 'Console/Getopt.php';
+require_once 'File/Util.php';
 
 class Phync_Option
 {
@@ -14,7 +15,7 @@ class Phync_Option
         $this->options = $options;
         foreach ($files as $key => $value) {
             if (file_exists($value)) {
-                $files[$key] = realpath($value);
+                $files[$key] = File_Util::realPath($value);
             } else {
                 throw new RuntimeException("File Not Found: {$value}");
             }
