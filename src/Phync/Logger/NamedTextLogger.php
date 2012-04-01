@@ -15,7 +15,10 @@ class Phync_Logger_NamedTextLogger implements Phync_Event_ObserverInterface
             $this->name = $this->getName();
             $file  = $event->app->getLogDirectory() . DIRECTORY_SEPARATOR .
                 date('Ymd') . '-' . $this->name . '.log';
-            $this->log = fopen($file, 'a');
+            $this->log = @fopen($file, 'a');
+            if ($this->log === false) {
+                throw new RuntimeException("Failed to open log file: \"{$file}\"");
+            }
             break;
         case 'before_command_execution':
             $this->onBeforeCommandExecution($event);
