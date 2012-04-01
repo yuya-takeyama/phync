@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__) . '/ListenerInterface.php';
+require_once dirname(__FILE__) . '/Event.php';
 
 class Phync_Event_Dispatcher
 {
@@ -14,9 +14,12 @@ class Phync_Event_Dispatcher
      * @param  Phync_Event_ListenerInterface $listener
      * @return void
      */
-    public function addListener(Phync_Event_ListenerInterface $listener)
+    public function addListener($eventName, $listener)
     {
-        $this->listeners[] = $listener;
+        if (!isset($this->listeners[$eventName])) {
+            $this->listeners[$eventName] = array();
+        }
+        $this->listeners[$eventName][] = $listener;
     }
 
     /**
@@ -26,12 +29,13 @@ class Phync_Event_Dispatcher
      * @param  mixed  $args  イベントリスナーに渡す引数. (可変引数)
      * @return void
      */
-    public function dispatch($event)
+    public function dispatch($eventName, $event = NULL)
     {
-        $args = func_get_args();
-        $event = array_shift($args);
-        foreach ($this->listeners as $listener) {
-            $listener->on($event, $args);
+        if (is_null($event)) {
+            $event = new Phync_Event_Event;
+        }
+        foreach ($this->listeners[$eventName] as $listener) {
+            call_user_func($listener, $event);
         }
     }
 }
