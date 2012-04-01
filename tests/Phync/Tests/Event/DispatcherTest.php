@@ -15,7 +15,7 @@ class Phync_Tests_Event_DispatcherTest extends PHPUnit_Framework_TestCase
             ->method('call')
             ->with($event);
         $dispatcher = new Phync_Event_Dispatcher;
-        $dispatcher->addListener('foo_event', array($listener, 'call'));
+        $dispatcher->on('foo_event', array($listener, 'call'));
         $dispatcher->dispatch('foo_event', $event);
     }
 }

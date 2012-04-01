@@ -14,7 +14,7 @@ class Phync_Event_Dispatcher
      * @param  Phync_Event_ListenerInterface $listener
      * @return void
      */
-    public function addListener($eventName, $listener)
+    public function on($eventName, $listener)
     {
         if (!isset($this->listeners[$eventName])) {
             $this->listeners[$eventName] = array();
