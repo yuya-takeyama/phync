@@ -5,10 +5,10 @@ require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
-require_once dirname(__FILE__) . '/ConfigNotFoundException.php';
-require_once dirname(__FILE__) . '/ArgumentException.php';
-require_once dirname(__FILE__) . '/FileNotFoundException.php';
-require_once dirname(__FILE__) . '/AbortException.php';
+require_once dirname(__FILE__) . '/Exception/ConfigNotFound.php';
+require_once dirname(__FILE__) . '/Exception/InvalidArgument.php';
+require_once dirname(__FILE__) . '/Exception/FileNotFound.php';
+require_once dirname(__FILE__) . '/Exception/Abort.php';
 
 /**
  * Phync: Simple rsync wrapper in PHP.
@@ -95,7 +95,7 @@ class Phync_Application
                 throw new RuntimeException($this->getConfigExample($e->getMessage()));
             }
         } else {
-            throw new Phync_ConfigNotFoundException($this->getConfigExample("Configuration file \"{$file}\" is not found."));
+            throw new Phync_Exception_ConfigNotFound($this->getConfigExample("Configuration file \"{$file}\" is not found."));
         }
     }
 
@@ -150,7 +150,7 @@ __USAGE__;
     {
         $app = $event->app;
         if (!$app->getOption()->hasFiles()) {
-            throw new Phync_ArgumentException($app->getUsage("No files are specified."));
+            throw new Phync_Exception_InvalidArgument($app->getUsage("No files are specified."));
         }
     }
 
@@ -159,7 +159,7 @@ __USAGE__;
         $files = $event->app->getOption()->getFiles();
         foreach ($files as $file) {
             if (!file_exists($file)) {
-                throw new Phync_FileNotFoundException("\"{$file}\" is not found.");
+                throw new Phync_Exception_FileNotFound("\"{$file}\" is not found.");
             }
         }
     }
@@ -188,7 +188,7 @@ __USAGE__;
                 if ($flag === 'Y') {
                     return;
                 } else if ($flag === 'N') {
-                    throw new Phync_AbortException('Aborted execution.');
+                    throw new Phync_Exception_Abort('Aborted execution.');
                 }
             }
             echo "Invalid input.", PHP_EOL;
