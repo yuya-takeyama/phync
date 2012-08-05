@@ -7,3 +7,4 @@ set_include_path(
     get_include_path()
 );
 ini_set('error_reporting', E_ALL & ~E_STRICT);
+require_once 'Phake.php';
