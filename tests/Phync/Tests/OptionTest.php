@@ -79,7 +79,8 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
 
     private function createOption()
     {
-        $argv = array_merge(array('phync'), func_get_args());
+        $args = func_get_args();
+        $argv = array_merge(array('phync'), $args);
         return new Phync_Option($argv);
     }
 }
