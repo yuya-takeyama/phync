@@ -41,6 +41,9 @@ class Phync_CommandGenerator
             if ($option->isDryRun()) {
                 $command .= " --dry-run";
             }
+            if ($option->isChecksum()) {
+                $command .= " --checksum";
+            }
             $command .= " --delete";
             if ($this->config->hasExcludeFrom()) {
                 $command .= ' ' . $this->fileUtil->shellescape("--exclude-from={$this->config->getExcludeFrom()}");

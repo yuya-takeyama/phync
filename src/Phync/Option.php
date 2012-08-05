@@ -38,7 +38,6 @@ class Phync_Option
      */
     public function parse()
     {
-        var_dump($this->options);
         foreach ($this->options as $option) {
             list($key, $value) = $option;
             $this->_parse($key, $value);
