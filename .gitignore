@@ -1,4 +1,3 @@
 *.swp
-.bundle
-vendor
-onion
+/.bundle
+/vendor/bundle
