@@ -17,23 +17,39 @@ require_once 'File/Util.php';
  */
 class Phync_CommandGenerator
 {
-    public function getCommands(Phync_Config $config, Phync_Option $option)
+    /**
+     * @var Phync_Config
+     */
+    private $config;
+
+    /**
+     * @var Phync_FileUtil
+     */
+    private $fileUtil;
+
+    public function __construct(Phync_Config $config, Phync_FileUtil $fileUtil)
+    {
+        $this->config   = $config;
+        $this->fileUtil = $fileUtil;
+    }
+
+    public function getCommands(Phync_Option $option)
     {
         $commands = array();
-        foreach ($config->getDestinations() as $destination) {
+        foreach ($this->config->getDestinations() as $destination) {
             $command = "rsync -avC";
             if ($option->isDryRun()) {
                 $command .= " --dry-run";
             }
             $command .= " --delete";
-            if ($config->hasExcludeFrom()) {
-                $command .= ' ' . escapeshellarg("--exclude-from={$config->getExcludeFrom()}");
+            if ($this->config->hasExcludeFrom()) {
+                $command .= ' ' . $this->fileUtil->shellescape("--exclude-from={$this->config->getExcludeFrom()}");
             }
-            if ($config->hasRsyncPath()) {
-                $command .= ' ' . escapeshellarg("--rsync-path={$config->getRsyncPath()}");
+            if ($this->config->hasRsyncPath()) {
+                $command .= ' ' . $this->fileUtil->shellescape("--rsync-path={$this->config->getRsyncPath()}");
             }
-            if ($config->hasRsh()) {
-                $command .= ' ' . escapeshellarg("--rsh={$config->getRsh()}");
+            if ($this->config->hasRsh()) {
+                $command .= ' ' . $this->fileUtil->shellescape("--rsh={$this->config->getRsh()}");
             }
             foreach ($option->getFiles() as $file) {
                 $commands[] = $command . ' ' . $this->getFileArgument($destination, $file);
@@ -51,7 +67,11 @@ class Phync_CommandGenerator
      */
     private function getFileArgument($destination, $file)
     {
-        $file = File_Util::realPath($file);
-        return escapeshellarg($file) . ' ' . escapeshellarg("{$destination}:" . dirname($file));
+        $file = $this->fileUtil->getRealPath($file);
+        if ($this->fileUtil->isDir($file)) {
+            $file .= "/";
+        }
+        return $this->fileUtil->shellescape($file) . ' ' .
+            $this->fileUtil->shellescape("{$destination}:" . $file);
     }
 }
