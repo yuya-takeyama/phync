@@ -10,4 +10,8 @@ branches:
     - master
     - develop
 
+before_script:
+  - ./bin/install-phar.sh
+  - php composer.phar install
+
 script: phpunit --coverage-text
