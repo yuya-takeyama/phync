@@ -1,0 +1,5 @@
+{
+  "require-dev": {
+		"phake/phake": "dev-master"
+	}
+}
