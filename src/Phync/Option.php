@@ -16,14 +16,17 @@ class Phync_Option
 
     private $files;
 
+    private $checksum;
+
     public function __construct($argv)
     {
         $opt = new Console_Getopt;
-        list($options, $files) = $opt->getopt($argv, '', array('execute'));
+        list($options, $files) = $opt->getopt($argv, '', array('execute', 'checksum'));
         $this->options = $options;
         $this->files   = $files;
 
-        $this->dryRun = true;
+        $this->dryRun   = true;
+        $this->checksum = false;
 
         $this->parse();
     }
@@ -35,12 +38,21 @@ class Phync_Option
      */
     public function parse()
     {
-        foreach ($this->options as $key => $value) {
-            switch ($key) {
-                case '--execute':
-                    $this->setExecute(true);
-                    break;
-            }
+        foreach ($this->options as $option) {
+            list($key, $value) = $option;
+            $this->_parse($key, $value);
+        }
+    }
+
+    private function _parse($key, $value)
+    {
+        switch ($key) {
+        case '--execute':
+            $this->setExecute(true);
+            break;
+        case '--checksum':
+            $this->setChecksum(true);
+            break;
         }
     }
 
@@ -63,6 +75,27 @@ class Phync_Option
     public function isDryRun()
     {
         return $this->dryRun;
+    }
+
+    /**
+     * チェックサムを行うか.
+     *
+     * @return bool
+     */
+    public function isChecksum()
+    {
+        return $this->checksum;
+    }
+
+    /**
+     * チェックサムフラグをセットする.
+     *
+     * @param  bool $pred
+     * @return void
+     */
+    public function setChecksum($pred)
+    {
+        $this->checksum = ((bool)$pred);
     }
 
     /**

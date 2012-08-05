@@ -44,6 +44,44 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function isChecksum_デフォルトではfalse()
+    {
+        $option = $this->createOption();
+        $this->assertFalse($option->isChecksum());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksum_setChecksumでtrueを指定したらtrueになる()
+    {
+        $option = $this->createOption();
+        $option->setChecksum(true);
+        $this->assertTrue($option->isChecksum());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksum_setChecksumでfalseを指定したらfalseになる()
+    {
+        $option = $this->createOption();
+        $option->setChecksum(false);
+        $this->assertFalse($option->isChecksum());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksum_checksumオプションが指定されていればtrue()
+    {  
+        $option = $this->createOption('--checksum');
+        $this->assertTrue($option->isChecksum());
+    }
+
+    /**
+     * @test
+     */
     public function hasFiles_ファイル名の指定が無ければfalse()
     {
         $option = $this->createOption();

@@ -76,4 +76,16 @@ class Phync_Tests_CommandGeneratorTest extends PHPUnit_Framework_TestCase
             $this->generator->getCommands($option)
         );
     }
+
+    /**
+     * @test
+     */
+    public function checksumオプションがあればチェックサムを行う()
+    {
+        $option = new Phync_Option(array('phync', '--checksum', '/path/to/dir'));
+        $this->assertEquals(
+            array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            $this->generator->getCommands($option)
+        );
+    }
 }
