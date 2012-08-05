@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/Config.php';
 require_once dirname(__FILE__) . '/Option.php';
+require_once dirname(__FILE__) . '/FileUtil.php';
 require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
@@ -62,8 +63,8 @@ class Phync_Application
     {
         $this->loadConfig();
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
-        $generator = new Phync_CommandGenerator;
-        $commands  = $generator->getCommands($this->config, $this->option);
+        $generator = new Phync_CommandGenerator($this->config, new Phync_FileUtil);
+        $commands  = $generator->getCommands($this->option);
         $this->dispatcher->dispatch('before_all_command_execution', array(
             'app'      => $this,
             'commands' => $commands
