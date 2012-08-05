@@ -12,6 +12,6 @@ branches:
 
 before_script:
   - ./bin/install-phar.sh
-  - php composer.phar install
+  - php composer.phar install --dev
 
 script: phpunit --coverage-text
