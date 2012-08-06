@@ -1,5 +1,4 @@
 <?php
-include dirname(__FILE__) . '/../vendor/autoload.php';
 set_include_path(
     dirname(__FILE__) . '/../src' . PATH_SEPARATOR .
     dirname(__FILE__) . '/../vendor/yuya-takeyama/Phake/src' . PATH_SEPARATOR .
