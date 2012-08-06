@@ -50,4 +50,8 @@ class Phync_Config
     {
         return $this->config['rsh'];
     }
+
+    public function isDefaultChecksum()
+    {
+    }
 }
