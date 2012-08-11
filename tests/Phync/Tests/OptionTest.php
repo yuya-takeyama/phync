@@ -1,7 +1,7 @@
 <?php
 require_once 'Phync/Option.php';
 
-class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
+class Phync_Tests_OptionTest extends Phync_Tests_TestCase
 {
     /**
      * @test
@@ -82,6 +82,35 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function isChecksumSet_デフォルトはfalse()
+    {
+        $option = $this->createOption();
+        $this->assertFalse($option->isChecksumSet());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksumSet_checksumがtrueならtrue()
+    {
+        $option = $this->createOption();
+        $option->setChecksum(true);
+        $this->assertTrue($option->isChecksumSet());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksumSet_checksumがfalseならtrue()
+    {
+        $option = $this->createOption();
+        $option->setChecksum(false);
+        $this->assertTrue($option->isChecksumSet());
+    }
+
+    /**
+     * @test
+     */
     public function hasFiles_ファイル名の指定が無ければfalse()
     {
         $option = $this->createOption();
@@ -113,12 +142,5 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
     {
         $option = $this->createOption('foo.txt', 'bar.txt');
         $this->assertEquals(array('foo.txt', 'bar.txt'), $option->getFiles());
-    }
-
-    private function createOption()
-    {
-        $args = func_get_args();
-        $argv = array_merge(array('phync'), $args);
-        return new Phync_Option($argv);
     }
 }
