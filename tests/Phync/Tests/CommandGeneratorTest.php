@@ -81,9 +81,8 @@ class Phync_Tests_CommandGeneratorTest extends PHPUnit_Framework_TestCase
      */
     public function デフォルトでチェックサムを行う設定ならチェックサムを行う()
     {
-        $config = Phake::partialMock('Phync_Config', array('destinations' => array('localhost')));
-        Phake::when($config)->isDefaultChecksum()->thenReturn(true);
-        $option = new Phync_Option(array('phync', '/path/to/dir'));
+        $config    = $this->createDefaultChecksumConfig();
+        $option    = new Phync_Option(array('phync', '/path/to/dir'));
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
             array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
@@ -96,9 +95,8 @@ class Phync_Tests_CommandGeneratorTest extends PHPUnit_Framework_TestCase
      */
     public function デフォルトでチェックサムを行う設定でchecksumオプションがあればチェックサムを行う()
     {
-        $config = Phake::partialMock('Phync_Config', array('destinations' => array('localhost')));
-        Phake::when($config)->isDefaultChecksum()->thenReturn(true);
-        $option = new Phync_Option(array('phync', '--checksum', '/path/to/dir'));
+        $config    = $this->createDefaultChecksumConfig();
+        $option    = new Phync_Option(array('phync', '--checksum', '/path/to/dir'));
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
             array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
@@ -111,9 +109,8 @@ class Phync_Tests_CommandGeneratorTest extends PHPUnit_Framework_TestCase
      */
     public function デフォルトでチェックサムを行う設定でno_checksumオプションがあればチェックサムを行わない()
     {
-        $config = Phake::partialMock('Phync_Config', array('destinations' => array('localhost')));
-        Phake::when($config)->isDefaultChecksum()->thenReturn(true);
-        $option = new Phync_Option(array('phync', '--no-checksum', '/path/to/dir'));
+        $config    = $this->createDefaultChecksumConfig();
+        $option    = new Phync_Option(array('phync', '--no-checksum', '/path/to/dir'));
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
             array("rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
@@ -142,5 +139,19 @@ class Phync_Tests_CommandGeneratorTest extends PHPUnit_Framework_TestCase
             ->getRealPath('/path/to/dir')
             ->thenReturn('/path/to/dir');
         return $fileUtil;
+    }
+
+    /**
+     * デフォルトでチェックサムを行う設定の Phync_Config オブジェクトを生成する
+     *
+     * @return Phync_Config
+     */
+    private function createDefaultChecksumConfig()
+    {
+        $config = Phake::partialMock('Phync_Config', array(
+            'destinations' => array('localhost'))
+        );
+        Phake::when($config)->isDefaultChecksum()->thenReturn(true);
+        return $config;
     }
 }
