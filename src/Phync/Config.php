@@ -51,7 +51,14 @@ class Phync_Config
         return $this->config['rsh'];
     }
 
+    /**
+     * デフォルトでチェックサムを行うか
+     *
+     * @return bool
+     */
     public function isDefaultChecksum()
     {
+        return array_key_exists('default_checksum', $this->config) &&
+            (bool) $this->config['default_checksum'];
     }
 }
