@@ -26,7 +26,7 @@ class Phync_Option
         $this->files   = $files;
 
         $this->dryRun   = true;
-        $this->checksum = false;
+        $this->checksum = NULL;
 
         $this->parse();
     }
@@ -84,7 +84,17 @@ class Phync_Option
      */
     public function isChecksum()
     {
-        return $this->checksum;
+        return (bool) $this->checksum;
+    }
+
+    /**
+     * チェックサムが明示的に指定されているか
+     *
+     * @return bool
+     */
+    public function isChecksumSet()
+    {
+        return isset($this->checksum);
     }
 
     /**
