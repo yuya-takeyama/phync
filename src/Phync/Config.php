@@ -1,4 +1,13 @@
 <?php
+/**
+ * This file is part of Phync.
+ *
+ * (c) Yuya Takeyama
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 class Phync_Config
 {
     private $config;
@@ -49,5 +58,16 @@ class Phync_Config
     public function getRsh()
     {
         return $this->config['rsh'];
+    }
+
+    /**
+     * デフォルトでチェックサムを行うか
+     *
+     * @return bool
+     */
+    public function isDefaultChecksum()
+    {
+        return array_key_exists('default_checksum', $this->config) &&
+            (bool) $this->config['default_checksum'];
     }
 }

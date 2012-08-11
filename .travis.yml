@@ -10,4 +10,7 @@ branches:
     - master
     - develop
 
+before_script:
+  - ./bin/install.sh
+
 script: phpunit --coverage-text

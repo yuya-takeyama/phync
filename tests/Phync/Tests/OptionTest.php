@@ -1,7 +1,16 @@
 <?php
+/**
+ * This file is part of Phync.
+ *
+ * (c) Yuya Takeyama
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 require_once 'Phync/Option.php';
 
-class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
+class Phync_Tests_OptionTest extends Phync_Tests_TestCase
 {
     /**
      * @test
@@ -44,6 +53,73 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function isChecksum_デフォルトではfalse()
+    {
+        $option = $this->createOption();
+        $this->assertFalse($option->isChecksum());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksum_setChecksumでtrueを指定したらtrueになる()
+    {
+        $option = $this->createOption();
+        $option->setChecksum(true);
+        $this->assertTrue($option->isChecksum());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksum_setChecksumでfalseを指定したらfalseになる()
+    {
+        $option = $this->createOption();
+        $option->setChecksum(false);
+        $this->assertFalse($option->isChecksum());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksum_checksumオプションが指定されていればtrue()
+    {  
+        $option = $this->createOption('--checksum');
+        $this->assertTrue($option->isChecksum());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksumSet_デフォルトはfalse()
+    {
+        $option = $this->createOption();
+        $this->assertFalse($option->isChecksumSet());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksumSet_checksumがtrueならtrue()
+    {
+        $option = $this->createOption();
+        $option->setChecksum(true);
+        $this->assertTrue($option->isChecksumSet());
+    }
+
+    /**
+     * @test
+     */
+    public function isChecksumSet_checksumがfalseならtrue()
+    {
+        $option = $this->createOption();
+        $option->setChecksum(false);
+        $this->assertTrue($option->isChecksumSet());
+    }
+
+    /**
+     * @test
+     */
     public function hasFiles_ファイル名の指定が無ければfalse()
     {
         $option = $this->createOption();
@@ -75,11 +151,5 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
     {
         $option = $this->createOption('foo.txt', 'bar.txt');
         $this->assertEquals(array('foo.txt', 'bar.txt'), $option->getFiles());
-    }
-
-    private function createOption()
-    {
-        $argv = array_merge(array('phync'), func_get_args());
-        return new Phync_Option($argv);
     }
 }

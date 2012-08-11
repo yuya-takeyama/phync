@@ -1,4 +1,7 @@
 *.swp
-.bundle
-vendor
-onion
+/composer.phar
+/venom.php
+/.bundle
+/.venom
+/vendor
+!/vendor/pear

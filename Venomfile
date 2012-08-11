@@ -1,0 +1,4 @@
+<?php
+github('https://github.com/yuya-takeyama/Phake', array(
+    'branch' => 'fix-func_get_args-fatal-error',
+));

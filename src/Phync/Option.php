@@ -1,6 +1,14 @@
 <?php
+/**
+ * This file is part of Phync.
+ *
+ * (c) Yuya Takeyama
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 require_once 'Console/Getopt.php';
-require_once 'File/Util.php';
 
 class Phync_Option
 {
@@ -8,14 +16,21 @@ class Phync_Option
 
     private $files;
 
+    private $checksum;
+
     public function __construct($argv)
     {
         $opt = new Console_Getopt;
-        list($options, $files) = $opt->getopt($argv, '', array('execute'));
+        list($options, $files) = $opt->getopt($argv, '', array(
+            'execute',
+            'checksum',
+            'no-checksum',
+        ));
         $this->options = $options;
         $this->files   = $files;
 
-        $this->dryRun = true;
+        $this->dryRun   = true;
+        $this->checksum = NULL;
 
         $this->parse();
     }
@@ -27,12 +42,24 @@ class Phync_Option
      */
     public function parse()
     {
-        foreach ($this->options as $key => $value) {
-            switch ($key) {
-                case '--execute':
-                    $this->setExecute(true);
-                    break;
-            }
+        foreach ($this->options as $option) {
+            list($key, $value) = $option;
+            $this->_parse($key, $value);
+        }
+    }
+
+    private function _parse($key, $value)
+    {
+        switch ($key) {
+        case '--execute':
+            $this->setExecute(true);
+            break;
+        case '--checksum':
+            $this->setChecksum(true);
+            break;
+        case '--no-checksum':
+            $this->setChecksum(false);
+            break;
         }
     }
 
@@ -55,6 +82,37 @@ class Phync_Option
     public function isDryRun()
     {
         return $this->dryRun;
+    }
+
+    /**
+     * チェックサムを行うか.
+     *
+     * @return bool
+     */
+    public function isChecksum()
+    {
+        return (bool) $this->checksum;
+    }
+
+    /**
+     * チェックサムが明示的に指定されているか
+     *
+     * @return bool
+     */
+    public function isChecksumSet()
+    {
+        return isset($this->checksum);
+    }
+
+    /**
+     * チェックサムフラグをセットする.
+     *
+     * @param  bool $pred
+     * @return void
+     */
+    public function setChecksum($pred)
+    {
+        $this->checksum = ((bool)$pred);
     }
 
     /**

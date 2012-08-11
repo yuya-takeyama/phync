@@ -1,14 +1,24 @@
 <?php
+/**
+ * This file is part of Phync.
+ *
+ * (c) Yuya Takeyama
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 require_once dirname(__FILE__) . '/Config.php';
 require_once dirname(__FILE__) . '/Option.php';
+require_once dirname(__FILE__) . '/FileUtil.php';
 require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
-require_once dirname(__FILE__) . '/ConfigNotFoundException.php';
-require_once dirname(__FILE__) . '/ArgumentException.php';
-require_once dirname(__FILE__) . '/FileNotFoundException.php';
-require_once dirname(__FILE__) . '/AbortException.php';
+require_once dirname(__FILE__) . '/Exception/ConfigNotFound.php';
+require_once dirname(__FILE__) . '/Exception/InvalidArgument.php';
+require_once dirname(__FILE__) . '/Exception/FileNotFound.php';
+require_once dirname(__FILE__) . '/Exception/Abort.php';
 
 /**
  * Phync: Simple rsync wrapper in PHP.
@@ -62,8 +72,8 @@ class Phync_Application
     {
         $this->loadConfig();
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
-        $generator = new Phync_CommandGenerator;
-        $commands  = $generator->getCommands($this->config, $this->option);
+        $generator = new Phync_CommandGenerator($this->config, new Phync_FileUtil);
+        $commands  = $generator->getCommands($this->option);
         $this->dispatcher->dispatch('before_all_command_execution', array(
             'app'      => $this,
             'commands' => $commands
@@ -95,7 +105,7 @@ class Phync_Application
                 throw new RuntimeException($this->getConfigExample($e->getMessage()));
             }
         } else {
-            throw new Phync_ConfigNotFoundException($this->getConfigExample("Configuration file \"{$file}\" is not found."));
+            throw new Phync_Exception_ConfigNotFound($this->getConfigExample("Configuration file \"{$file}\" is not found."));
         }
     }
 
@@ -150,7 +160,7 @@ __USAGE__;
     {
         $app = $event->app;
         if (!$app->getOption()->hasFiles()) {
-            throw new Phync_ArgumentException($app->getUsage("No files are specified."));
+            throw new Phync_Exception_InvalidArgument($app->getUsage("No files are specified."));
         }
     }
 
@@ -159,7 +169,7 @@ __USAGE__;
         $files = $event->app->getOption()->getFiles();
         foreach ($files as $file) {
             if (!file_exists($file)) {
-                throw new Phync_FileNotFoundException("\"{$file}\" is not found.");
+                throw new Phync_Exception_FileNotFound("\"{$file}\" is not found.");
             }
         }
     }
@@ -188,7 +198,7 @@ __USAGE__;
                 if ($flag === 'Y') {
                     return;
                 } else if ($flag === 'N') {
-                    throw new Phync_AbortException('Aborted execution.');
+                    throw new Phync_Exception_Abort('Aborted execution.');
                 }
             }
             echo "Invalid input.", PHP_EOL;
