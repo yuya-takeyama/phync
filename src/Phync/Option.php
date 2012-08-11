@@ -21,7 +21,11 @@ class Phync_Option
     public function __construct($argv)
     {
         $opt = new Console_Getopt;
-        list($options, $files) = $opt->getopt($argv, '', array('execute', 'checksum'));
+        list($options, $files) = $opt->getopt($argv, '', array(
+            'execute',
+            'checksum',
+            'no-checksum',
+        ));
         $this->options = $options;
         $this->files   = $files;
 
@@ -52,6 +56,9 @@ class Phync_Option
             break;
         case '--checksum':
             $this->setChecksum(true);
+            break;
+        case '--no-checksum':
+            $this->setChecksum(false);
             break;
         }
     }
