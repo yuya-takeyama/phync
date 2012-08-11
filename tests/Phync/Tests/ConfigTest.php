@@ -1,7 +1,7 @@
 <?php
 require_once 'Phync/Config.php';
 
-class Phync_Tests_ConfigTest extends PHPUnit_Framework_TestCase
+class Phync_Tests_ConfigTest extends Phync_Tests_TestCase
 {
     private $defaultConfigValues;
 

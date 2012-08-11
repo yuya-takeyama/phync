@@ -1,7 +1,7 @@
 <?php
 require_once 'Phync/Option.php';
 
-class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
+class Phync_Tests_OptionTest extends Phync_Tests_TestCase
 {
     /**
      * @test
@@ -142,12 +142,5 @@ class Phync_Tests_OptionTest extends PHPUnit_Framework_TestCase
     {
         $option = $this->createOption('foo.txt', 'bar.txt');
         $this->assertEquals(array('foo.txt', 'bar.txt'), $option->getFiles());
-    }
-
-    private function createOption()
-    {
-        $args = func_get_args();
-        $argv = array_merge(array('phync'), $args);
-        return new Phync_Option($argv);
     }
 }

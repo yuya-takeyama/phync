@@ -13,7 +13,7 @@ require_once 'Phync/Config.php';
 require_once 'Phync/Option.php';
 require_once 'Phync/FileUtil.php';
 
-class Phync_Tests_CommandGeneratorTest extends PHPUnit_Framework_TestCase
+class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
 {
     public function setUp()
     {

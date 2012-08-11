@@ -2,7 +2,7 @@
 require_once 'Phync/Event/Dispatcher.php';
 require_once 'Phync/Event/Event.php';
 
-class Phync_Tests_Event_DispatcherTest extends PHPUnit_Framework_TestCase
+class Phync_Tests_Event_DispatcherTest extends Phync_Tests_TestCase
 {
     /**
      * @test
