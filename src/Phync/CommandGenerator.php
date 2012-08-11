@@ -41,7 +41,9 @@ class Phync_CommandGenerator
             if ($option->isDryRun()) {
                 $command .= " --dry-run";
             }
-            if ($option->isChecksum()) {
+            if ($this->config->isDefaultChecksum() && ! $option->isChecksumSet()) {
+                $command .= " --checksum";
+            } else if ($option->isChecksum()) {
                 $command .= " --checksum";
             }
             $command .= " --delete";
