@@ -149,8 +149,8 @@ class Phync_Tests_CommandGeneratorTest extends PHPUnit_Framework_TestCase
     private function createDefaultChecksumConfig()
     {
         $config = Phake::partialMock('Phync_Config', array(
-            'destinations' => array('localhost'))
-        );
+            'destinations' => array('localhost')
+        ));
         Phake::when($config)->isDefaultChecksum()->thenReturn(true);
         return $config;
     }
