@@ -26,7 +26,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function rsyncコマンドの配列を生成する()
     {
-        $option = new Phync_Option(array('phync', '/path/to/file'));
+        $option = $this->createOption('/path/to/file');
         $this->assertEquals(
             array("rsync -avC --dry-run --delete '/path/to/file' 'localhost:/path/to/file'"),
             $this->generator->getCommands($option)
@@ -38,7 +38,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function ディレクトリを指定したときは末尾にスラッシュが付く()
     {
-        $option = new Phync_Option(array('phync', '/path/to/dir'));
+        $option = $this->createOption('/path/to/dir');
         $this->assertEquals(
             array("rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
             $this->generator->getCommands($option)
@@ -50,11 +50,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function 複数のファイルが指定されていれば複数のコマンドを生成する()
     {
-        $option = new Phync_Option(array(
-            'phync',
-            '/path/to/file',
-            '/path/to/dir'
-        ));
+        $option = $this->createOption('/path/to/file', '/path/to/dir');
         $this->assertEquals(
             array(
                 "rsync -avC --dry-run --delete '/path/to/file' 'localhost:/path/to/file'",
@@ -69,7 +65,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function checksumオプションがあればチェックサムを行う()
     {
-        $option = new Phync_Option(array('phync', '--checksum', '/path/to/dir'));
+        $option = $this->createOption('--checksum', '/path/to/dir');
         $this->assertEquals(
             array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
             $this->generator->getCommands($option)
@@ -82,7 +78,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     public function デフォルトでチェックサムを行う設定ならチェックサムを行う()
     {
         $config    = $this->createDefaultChecksumConfig();
-        $option    = new Phync_Option(array('phync', '/path/to/dir'));
+        $option    = $this->createOption('/path/to/dir');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
             array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
@@ -96,7 +92,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     public function デフォルトでチェックサムを行う設定でchecksumオプションがあればチェックサムを行う()
     {
         $config    = $this->createDefaultChecksumConfig();
-        $option    = new Phync_Option(array('phync', '--checksum', '/path/to/dir'));
+        $option    = $this->createOption('--checksum', '/path/to/dir');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
             array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
@@ -110,7 +106,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     public function デフォルトでチェックサムを行う設定でno_checksumオプションがあればチェックサムを行わない()
     {
         $config    = $this->createDefaultChecksumConfig();
-        $option    = new Phync_Option(array('phync', '--no-checksum', '/path/to/dir'));
+        $option    = $this->createOption('--no-checksum', '/path/to/dir');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
             array("rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
