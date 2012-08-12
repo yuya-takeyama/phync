@@ -84,6 +84,18 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
+    public function ファイルとディレクトリが混ざっているとき()
+    {
+        $option = $this->createOption('file', 'another_file', 'dir');
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/another_file' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    /**
+     * @test
+     */
     public function checksumオプションがあればチェックサムを行う()
     {
         $option = $this->createOption('--checksum');
