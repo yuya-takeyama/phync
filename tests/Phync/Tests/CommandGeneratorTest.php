@@ -48,11 +48,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function 特定のディレクトリだけをアップするコマンドを生成する()
+    public function 特定のディレクトリ全体をアップするコマンドを生成する()
     {
         $option = $this->createOption('dir');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir' --exclude '*'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -74,9 +74,9 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function 複数のファイルが指定されているとき()
     {
-        $option = $this->createOption('file', 'dir');
+        $option = $this->createOption('file', 'another_file');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/dir' --exclude '*'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/another_file' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -151,6 +151,9 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
             ->thenReturn(true);
         Phake::when($fileUtil)
             ->isDir('/working-dir/file')
+            ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->isDir('/working-dir/another_file')
             ->thenReturn(false);
         Phake::when($fileUtil)
             ->isDir('/working-dir/dir')
