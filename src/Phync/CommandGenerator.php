@@ -95,7 +95,7 @@ class Phync_CommandGenerator
     {
         $util   = $this->fileUtil;
         $result = '';
-        $names = explode(DIRECTORY_SEPARATOR, $file);
+        $names = explode(DIRECTORY_SEPARATOR, $util->getRelativePath($file, $util->getCwd()));
         $count = count($names);
         for ($i = 0; $i < $count; $i++) {
             $result .= ' --include ' . $util->shellescape('/' . join(DIRECTORY_SEPARATOR, $names) . ($i > 0 ? '/' : ''));

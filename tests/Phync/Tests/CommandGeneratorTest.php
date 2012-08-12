@@ -37,9 +37,9 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      * @test
      * @dataProvider provideFilePath
      */
-    public function 特定のファイルだけをアップするコマンドを生成する()
+    public function 特定のファイルだけをアップするコマンドを生成する($file)
     {
-        $option = $this->createOption('file');
+        $option = $this->createOption($file);
         $this->assertEquals(
             array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --exclude '*'"),
             $this->generator->getCommands($option)
@@ -55,8 +55,6 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
             array('./file/'),
             array('/working-dir/file'),
             array('/working-dir/file/'),
-            array('..//working-dir/file'),
-            array('../working-dir/file/'),
         );
     }
 
@@ -82,7 +80,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
             array('./dir/'),
             array('/working-dir/dir'),
             array('/working-dir/dir/'),
-            array('..//working-dir/dir'),
+            array('../working-dir/dir'),
             array('../working-dir/dir/'),
         );
     }
@@ -204,11 +202,29 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
             ->isDir('/working-dir/dir/file')
             ->thenReturn(false);
         Phake::when($fileUtil)
+            ->getRealPath('file')
+            ->thenReturn('/working-dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('file/')
+            ->thenReturn('/working-dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('./file')
+            ->thenReturn('/working-dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('./file/')
+            ->thenReturn('/working-dir/file');
+        Phake::when($fileUtil)
             ->getRealPath('dir')
             ->thenReturn('/working-dir/dir');
         Phake::when($fileUtil)
             ->getRealPath('dir/')
             ->thenReturn('/working-dir/dir');
+        Phake::when($fileUtil)
+            ->getRealPath('dir/file')
+            ->thenReturn('/working-dir/dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('another_file')
+            ->thenReturn('/working-dir/another_file');
         return $fileUtil;
     }
 
