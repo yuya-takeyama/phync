@@ -120,28 +120,10 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function hasFiles_ファイル名の指定が無ければfalse()
+    public function getFiles_ファイル名が指定されていなければカレントディレクトリ()
     {
         $option = $this->createOption();
-        $this->assertFalse($option->hasFiles());
-    }
-
-    /**
-     * @test
-     */
-    public function hasFiles_ファイル名が指定されていればtrue()
-    {
-        $option = $this->createOption('README.md');
-        $this->assertTrue($option->hasFiles());
-    }
-
-    /**
-     * @test
-     */
-    public function getFiles_ファイル名が指定されていなければ空の配列()
-    {
-        $option = $this->createOption();
-        $this->assertEquals(array(), $option->getFiles());
+        $this->assertEquals(array('./'), $option->getFiles());
     }
 
     /**

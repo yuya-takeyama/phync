@@ -116,22 +116,12 @@ class Phync_Option
     }
 
     /**
-     * 引数にファイルが指定されているか.
-     *
-     * @return bool
-     */
-    public function hasFiles()
-    {
-        return is_array($this->files) && count($this->files) > 0;
-    }
-
-    /**
      * 引数にファイルとして指定された文字列を全て取得する.
      *
      * @return array
      */
     public function getFiles()
     {
-        return $this->files;
+        return count($this->files) === 0 ? array('./') : $this->files;
     }
 }

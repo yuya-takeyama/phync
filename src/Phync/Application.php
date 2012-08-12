@@ -60,7 +60,6 @@ class Phync_Application
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
 
-        $this->dispatcher->on('after_config_loading', array($this, 'validateOption'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayCommands'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
@@ -153,14 +152,6 @@ __USAGE__;
     public function getEvent()
     {
         return new Phync_Event_Event(array('app' => $this));
-    }
-
-    public static function validateOption($event)
-    {
-        $app = $event->app;
-        if (!$app->getOption()->hasFiles()) {
-            throw new Phync_Exception_InvalidArgument($app->getUsage("No files are specified."));
-        }
     }
 
     public static function validateFiles($event)
