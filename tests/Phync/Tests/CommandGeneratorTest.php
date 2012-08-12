@@ -38,7 +38,6 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function rsyncコマンドの配列を生成する()
     {
-        $this->markTestIncomplete();
         $option = $this->createOption('file');
         $this->assertEquals(
             array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --exclude '*'"),

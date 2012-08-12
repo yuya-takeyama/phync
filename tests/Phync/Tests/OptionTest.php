@@ -120,15 +120,6 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function getFiles_ファイル名が指定されていなければカレントディレクトリ()
-    {
-        $option = $this->createOption();
-        $this->assertEquals(array('./'), $option->getFiles());
-    }
-
-    /**
-     * @test
-     */
     public function getFiles_指定されたファイル名を配列で取得する()
     {
         $option = $this->createOption('foo.txt', 'bar.txt');

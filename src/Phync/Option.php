@@ -122,6 +122,6 @@ class Phync_Option
      */
     public function getFiles()
     {
-        return count($this->files) === 0 ? array('./') : $this->files;
+        return $this->files;
     }
 }

@@ -56,7 +56,12 @@ class Phync_CommandGenerator
             if ($this->config->hasRsh()) {
                 $command .= ' ' . $this->fileUtil->shellescape("--rsh={$this->config->getRsh()}");
             }
-            $commands[] = sprintf('%s %s', $command, $this->getArgsToSyncCwd($destination));
+            $commands[] = sprintf(
+                '%s %s%s',
+                $command,
+                $this->getArgsToSyncCwd($destination),
+                $this->getArgsForSpecificFiles($option->getFiles())
+            );
         }
         return $commands;
     }
@@ -66,5 +71,19 @@ class Phync_CommandGenerator
         $util = $this->fileUtil;
         $path = $util->getRealPath($util->getCwd()) . DIRECTORY_SEPARATOR;
         return sprintf('%s %s', $util->shellescape($path), $util->shellescape("{$destination}:{$path}"));
+    }
+
+    public function getArgsForSpecificFiles($files)
+    {
+        if (count($files) === 0) {
+            return '';
+        }
+        $result = '';
+        $util   = $this->fileUtil;
+        foreach ($files as $file) {
+            $result .= ' --include ' . $util->shellescape('/' . $file);
+        }
+        $result .= " --exclude '*'";
+        return $result;
     }
 }
