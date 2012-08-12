@@ -81,9 +81,22 @@ class Phync_CommandGenerator
         $result = '';
         $util   = $this->fileUtil;
         foreach ($files as $file) {
-            $result .= ' --include ' . $util->shellescape('/' . $file);
+            $result .= $this->generateIncludeOptionForFile($file);
         }
         $result .= " --exclude '*'";
+        return $result;
+    }
+
+    private function generateIncludeOptionForFile($file)
+    {
+        $util   = $this->fileUtil;
+        $result = '';
+        $names = explode(DIRECTORY_SEPARATOR, $file);
+        $count = count($names);
+        for ($i = 0; $i < $count; $i++) {
+            $result .= ' --include ' . $util->shellescape('/' . join(DIRECTORY_SEPARATOR, $names));
+            array_pop($names);
+        }
         return $result;
     }
 }

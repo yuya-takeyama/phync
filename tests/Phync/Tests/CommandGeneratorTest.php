@@ -60,6 +60,18 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
+    public function 深い階層のファイルを指定するとき()
+    {
+        $option = $this->createOption('dir/file');
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/file' --include '/dir' --exclude '*'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    /**
+     * @test
+     */
     public function 複数のファイルが指定されているとき()
     {
         $option = $this->createOption('file', 'dir');
@@ -143,6 +155,9 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         Phake::when($fileUtil)
             ->isDir('/working-dir/dir')
             ->thenReturn(true);
+        Phake::when($fileUtil)
+            ->isDir('/working-dir/dir/file')
+            ->thenReturn(false);
         return $fileUtil;
     }
 
