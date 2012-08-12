@@ -62,9 +62,9 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      * @test
      * @dataProvider provideDirPath
      */
-    public function 特定のディレクトリ全体をアップするコマンドを生成する()
+    public function 特定のディレクトリ全体をアップするコマンドを生成する($dir)
     {
-        $option = $this->createOption('dir');
+        $option = $this->createOption($dir);
         $this->assertEquals(
             array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
             $this->generator->getCommands($option)
@@ -80,8 +80,6 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
             array('./dir/'),
             array('/working-dir/dir'),
             array('/working-dir/dir/'),
-            array('../working-dir/dir'),
-            array('../working-dir/dir/'),
         );
     }
 
@@ -218,6 +216,12 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
             ->thenReturn('/working-dir/dir');
         Phake::when($fileUtil)
             ->getRealPath('dir/')
+            ->thenReturn('/working-dir/dir');
+        Phake::when($fileUtil)
+            ->getRealPath('./dir')
+            ->thenReturn('/working-dir/dir');
+        Phake::when($fileUtil)
+            ->getRealPath('./dir/')
             ->thenReturn('/working-dir/dir');
         Phake::when($fileUtil)
             ->getRealPath('dir/file')
