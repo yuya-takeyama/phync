@@ -64,7 +64,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption('dir/file');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/file' --include '/dir' --exclude '*'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/file' --include '/dir/' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }

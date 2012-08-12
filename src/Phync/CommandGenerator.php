@@ -98,7 +98,7 @@ class Phync_CommandGenerator
         $names = explode(DIRECTORY_SEPARATOR, $file);
         $count = count($names);
         for ($i = 0; $i < $count; $i++) {
-            $result .= ' --include ' . $util->shellescape('/' . join(DIRECTORY_SEPARATOR, $names));
+            $result .= ' --include ' . $util->shellescape('/' . join(DIRECTORY_SEPARATOR, $names) . ($i > 0 ? '/' : ''));
             array_pop($names);
         }
         return $result;
