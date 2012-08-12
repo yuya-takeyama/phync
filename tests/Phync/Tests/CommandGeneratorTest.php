@@ -36,7 +36,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function rsyncコマンドの配列を生成する()
+    public function 特定のファイルだけをアップするコマンドを生成する()
     {
         $option = $this->createOption('file');
         $this->assertEquals(
@@ -48,12 +48,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function ディレクトリを指定したときは末尾にスラッシュが付く()
+    public function 特定のディレクトリだけをアップするコマンドを生成する()
     {
-        $this->markTestIncomplete();
-        $option = $this->createOption('/path/to/dir');
+        $option = $this->createOption('dir');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -61,15 +60,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function 複数のファイルが指定されていれば複数のコマンドを生成する()
+    public function 複数のファイルが指定されているとき()
     {
-        $this->markTestIncomplete();
-        $option = $this->createOption('/path/to/file', '/path/to/dir');
+        $option = $this->createOption('file', 'dir');
         $this->assertEquals(
-            array(
-                "rsync -avC --dry-run --delete '/path/to/file' 'localhost:/path/to/file'",
-                "rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'",
-            ),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/dir' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -79,10 +74,9 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function checksumオプションがあればチェックサムを行う()
     {
-        $this->markTestIncomplete();
-        $option = $this->createOption('--checksum', '/path/to/dir');
+        $option = $this->createOption('--checksum');
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $this->generator->getCommands($option)
         );
     }
@@ -92,12 +86,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function デフォルトでチェックサムを行う設定ならチェックサムを行う()
     {
-        $this->markTestIncomplete();
         $config    = $this->createDefaultChecksumConfig();
-        $option    = $this->createOption('/path/to/dir');
+        $option    = $this->createOption();
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }
@@ -107,12 +100,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function デフォルトでチェックサムを行う設定でchecksumオプションがあればチェックサムを行う()
     {
-        $this->markTestIncomplete();
         $config    = $this->createDefaultChecksumConfig();
-        $option    = $this->createOption('--checksum', '/path/to/dir');
+        $option    = $this->createOption('--checksum');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }
@@ -122,12 +114,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function デフォルトでチェックサムを行う設定でno_checksumオプションがあればチェックサムを行わない()
     {
-        $this->markTestIncomplete();
         $config    = $this->createDefaultChecksumConfig();
-        $option    = $this->createOption('--no-checksum', '/path/to/dir');
+        $option    = $this->createOption('--no-checksum');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }
