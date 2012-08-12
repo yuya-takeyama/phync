@@ -80,14 +80,23 @@ class Phync_CommandGenerator
         }
         $result = '';
         $util   = $this->fileUtil;
+        $includeAdded = false;
         foreach ($files as $file) {
-            if ($util->isDir($util->getRealPath($file))) {
+            $file = $util->getRealPath($file);
+            if ($file === $util->getCwd()) {
+                continue;
+            }
+            if ($util->isDir($file)) {
                 $result .= $this->generateIncludeOptionForDir($file);
+                $includeAdded = true;
             } else {
                 $result .= $this->generateIncludeOptionForFile($file);
+                $includeAdded = true;
             }
         }
-        $result .= " --exclude '*'";
+        if ($includeAdded) {
+            $result .= " --exclude '*'";
+        }
         return $result;
     }
 

@@ -35,6 +35,28 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
 
     /**
      * @test
+     * @dataProvider provideCwd
+     */
+    public function コマンドライン引数がカレントディレクトリならincludeを追加しない($cwd)
+    {
+        $option = $this->createOption($cwd);
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    public function provideCwd()
+    {
+        return array(
+            array('.'),
+            array('./'),
+            array('/working-dir'),
+        );
+    }
+
+    /**
+     * @test
      * @dataProvider provideFilePath
      */
     public function 特定のファイルだけをアップするコマンドを生成する($file)
@@ -199,6 +221,12 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         Phake::when($fileUtil)
             ->isDir('/working-dir/dir/file')
             ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->getRealPath('.')
+            ->thenReturn('/working-dir');
+        Phake::when($fileUtil)
+            ->getRealPath('./')
+            ->thenReturn('/working-dir');
         Phake::when($fileUtil)
             ->getRealPath('file')
             ->thenReturn('/working-dir/file');
