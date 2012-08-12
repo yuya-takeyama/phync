@@ -22,6 +22,11 @@ class Phync_FileUtil
         return File_Util::realPath($path);
     }
 
+    public function getRelativePath($path, $root, $separator = DIRECTORY_SEPARATOR)
+    {
+        return File_Util::relativePath($this->getRealPath($path), $this->getRealPath($root), $separator);
+    }
+
     public function isDir($path)
     {
         return is_dir($path);

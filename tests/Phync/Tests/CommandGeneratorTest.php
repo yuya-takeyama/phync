@@ -60,6 +60,30 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
+    public function 特定のディレクトリ全体をアップするコマンドを生成する_2()
+    {
+        $option = $this->createOption('dir/');
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function 特定のディレクトリ全体をアップするコマンドを生成する_3()
+    {
+        $option = $this->createOption('/working-dir/dir');
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    /**
+     * @test
+     */
     public function 深い階層のファイルを指定するとき()
     {
         $option = $this->createOption('dir/file');
@@ -173,6 +197,12 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         Phake::when($fileUtil)
             ->isDir('/working-dir/dir/file')
             ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->getRealPath('dir')
+            ->thenReturn('/working-dir/dir');
+        Phake::when($fileUtil)
+            ->getRealPath('dir/')
+            ->thenReturn('/working-dir/dir');
         return $fileUtil;
     }
 

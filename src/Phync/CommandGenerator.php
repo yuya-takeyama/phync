@@ -81,7 +81,7 @@ class Phync_CommandGenerator
         $result = '';
         $util   = $this->fileUtil;
         foreach ($files as $file) {
-            if ($util->isDir($util->getRealPath($util->getCwd() . DIRECTORY_SEPARATOR . $file))) {
+            if ($util->isDir($util->getRealPath($file))) {
                 $result .= $this->generateIncludeOptionForDir($file);
             } else {
                 $result .= $this->generateIncludeOptionForFile($file);
@@ -107,6 +107,7 @@ class Phync_CommandGenerator
     private function generateIncludeOptionForDir($file)
     {
         $util = $this->fileUtil;
+        $file = $util->getRelativePath($file, $util->getCwd());
         return sprintf(
             ' --include %s --include %s --include %s',
             $util->shellescape("/{$file}/"),
