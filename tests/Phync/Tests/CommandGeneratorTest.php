@@ -24,6 +24,18 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
+    public function コマンドライン引数が無ければカレントディレクトリをドライランでrsyncする()
+    {
+        $option = $this->createOption();
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    /**
+     * @test
+     */
     public function rsyncコマンドの配列を生成する()
     {
         $this->markTestIncomplete();
@@ -129,6 +141,12 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     private function createMockFileUtil()
     {
         $fileUtil = Phake::partialMock('Phync_FileUtil');
+        Phake::when($fileUtil)
+            ->getCwd()
+            ->thenReturn('/working-dir');
+        Phake::when($fileUtil)
+            ->isDir('/working-dir')
+            ->thenReturn(true);
         Phake::when($fileUtil)
             ->isDir('/working-dir/path/to/file')
             ->thenReturn(false);

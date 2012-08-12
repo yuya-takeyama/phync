@@ -72,11 +72,11 @@ class Phync_CommandGenerator
      */
     private function getFileArgument($destination, $file)
     {
-        $file = $this->fileUtil->getRealPath($file);
-        if ($this->fileUtil->isDir($file)) {
+        $util = $this->fileUtil;
+        $file = $util->getRealPath($util->getCwd() . DIRECTORY_SEPARATOR . $file);
+        if ($util->isDir($file)) {
             $file .= "/";
         }
-        return $this->fileUtil->shellescape($file) . ' ' .
-            $this->fileUtil->shellescape("{$destination}:" . $file);
+        return $util->shellescape($file) . ' ' . $util->shellescape("{$destination}:" . $file);
     }
 }
