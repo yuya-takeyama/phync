@@ -39,9 +39,9 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     public function rsyncコマンドの配列を生成する()
     {
         $this->markTestIncomplete();
-        $option = $this->createOption('/path/to/file');
+        $option = $this->createOption('file');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/path/to/file' 'localhost:/path/to/file'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -148,17 +148,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
             ->isDir('/working-dir')
             ->thenReturn(true);
         Phake::when($fileUtil)
-            ->isDir('/working-dir/path/to/file')
+            ->isDir('/working-dir/file')
             ->thenReturn(false);
         Phake::when($fileUtil)
-            ->isDir('/working-dir/path/to/dir')
+            ->isDir('/working-dir/dir')
             ->thenReturn(true);
-        Phake::when($fileUtil)
-            ->getRealPath('/working-dir/path/to/file')
-            ->thenReturn('/working-dir/path/to/file');
-        Phake::when($fileUtil)
-            ->getRealPath('/working-dir/path/to/dir')
-            ->thenReturn('/working-dir/path/to/dir');
         return $fileUtil;
     }
 

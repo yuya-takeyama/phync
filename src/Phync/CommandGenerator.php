@@ -56,27 +56,15 @@ class Phync_CommandGenerator
             if ($this->config->hasRsh()) {
                 $command .= ' ' . $this->fileUtil->shellescape("--rsh={$this->config->getRsh()}");
             }
-            foreach ($option->getFiles() as $file) {
-                $commands[] = $command . ' ' . $this->getFileArgument($destination, $file);
-            }
+            $commands[] = sprintf('%s %s', $command, $this->getArgsToSyncCwd($destination));
         }
         return $commands;
     }
 
-    /**
-     * ファイルとそのアップロード先を指定する引数を取得する.
-     *
-     * @param  string $destination
-     * @param  string $file
-     * @return string
-     */
-    private function getFileArgument($destination, $file)
+    public function getArgsToSyncCwd($destination)
     {
         $util = $this->fileUtil;
-        $file = $util->getRealPath($util->getCwd() . DIRECTORY_SEPARATOR . $file);
-        if ($util->isDir($file)) {
-            $file .= "/";
-        }
-        return $util->shellescape($file) . ' ' . $util->shellescape("{$destination}:" . $file);
+        $path = $util->getRealPath($util->getCwd()) . DIRECTORY_SEPARATOR;
+        return sprintf('%s %s', $util->shellescape($path), $util->shellescape("{$destination}:{$path}"));
     }
 }
