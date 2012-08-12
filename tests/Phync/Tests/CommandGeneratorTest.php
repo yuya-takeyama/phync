@@ -24,11 +24,95 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function rsyncコマンドの配列を生成する()
+    public function コマンドライン引数が無ければカレントディレクトリをドライランでrsyncする()
     {
-        $option = $this->createOption('/path/to/file');
+        $option = $this->createOption();
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/path/to/file' 'localhost:/path/to/file'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider provideCwd
+     */
+    public function コマンドライン引数がカレントディレクトリならincludeを追加しない($cwd)
+    {
+        $option = $this->createOption($cwd);
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    public function provideCwd()
+    {
+        return array(
+            array('.'),
+            array('./'),
+            array('/working-dir'),
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider provideFilePath
+     */
+    public function 特定のファイルだけをアップするコマンドを生成する($file)
+    {
+        $option = $this->createOption($file);
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --exclude '*'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    public function provideFilePath()
+    {
+        return array(
+            array('file'),
+            array('file/'),
+            array('./file'),
+            array('./file/'),
+            array('/working-dir/file'),
+            array('/working-dir/file/'),
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider provideDirPath
+     */
+    public function 特定のディレクトリ全体をアップするコマンドを生成する($dir)
+    {
+        $option = $this->createOption($dir);
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    public function provideDirPath()
+    {
+        return array(
+            array('dir'),
+            array('dir/'),
+            array('./dir'),
+            array('./dir/'),
+            array('/working-dir/dir'),
+            array('/working-dir/dir/'),
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function 深い階層のファイルを指定するとき()
+    {
+        $option = $this->createOption('dir/file');
+        $this->assertEquals(
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/file' --include '/dir/' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -36,11 +120,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function ディレクトリを指定したときは末尾にスラッシュが付く()
+    public function 複数のファイルが指定されているとき()
     {
-        $option = $this->createOption('/path/to/dir');
+        $option = $this->createOption('file', 'another_file');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/another_file' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -48,14 +132,11 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function 複数のファイルが指定されていれば複数のコマンドを生成する()
+    public function ファイルとディレクトリが混ざっているとき()
     {
-        $option = $this->createOption('/path/to/file', '/path/to/dir');
+        $option = $this->createOption('file', 'another_file', 'dir');
         $this->assertEquals(
-            array(
-                "rsync -avC --dry-run --delete '/path/to/file' 'localhost:/path/to/file'",
-                "rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'",
-            ),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/another_file' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -65,9 +146,9 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      */
     public function checksumオプションがあればチェックサムを行う()
     {
-        $option = $this->createOption('--checksum', '/path/to/dir');
+        $option = $this->createOption('--checksum');
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $this->generator->getCommands($option)
         );
     }
@@ -78,10 +159,10 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     public function デフォルトでチェックサムを行う設定ならチェックサムを行う()
     {
         $config    = $this->createDefaultChecksumConfig();
-        $option    = $this->createOption('/path/to/dir');
+        $option    = $this->createOption();
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }
@@ -92,10 +173,10 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     public function デフォルトでチェックサムを行う設定でchecksumオプションがあればチェックサムを行う()
     {
         $config    = $this->createDefaultChecksumConfig();
-        $option    = $this->createOption('--checksum', '/path/to/dir');
+        $option    = $this->createOption('--checksum');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }
@@ -106,10 +187,10 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     public function デフォルトでチェックサムを行う設定でno_checksumオプションがあればチェックサムを行わない()
     {
         $config    = $this->createDefaultChecksumConfig();
-        $option    = $this->createOption('--no-checksum', '/path/to/dir');
+        $option    = $this->createOption('--no-checksum');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/path/to/dir/' 'localhost:/path/to/dir/'"),
+            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }
@@ -123,17 +204,59 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $fileUtil = Phake::partialMock('Phync_FileUtil');
         Phake::when($fileUtil)
-            ->isDir('/path/to/file')
-            ->thenReturn(false);
+            ->getCwd()
+            ->thenReturn('/working-dir');
         Phake::when($fileUtil)
-            ->isDir('/path/to/dir')
+            ->isDir('/working-dir')
             ->thenReturn(true);
         Phake::when($fileUtil)
-            ->getRealPath('/path/to/file')
-            ->thenReturn('/path/to/file');
+            ->isDir('/working-dir/file')
+            ->thenReturn(false);
         Phake::when($fileUtil)
-            ->getRealPath('/path/to/dir')
-            ->thenReturn('/path/to/dir');
+            ->isDir('/working-dir/another_file')
+            ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->isDir('/working-dir/dir')
+            ->thenReturn(true);
+        Phake::when($fileUtil)
+            ->isDir('/working-dir/dir/file')
+            ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->getRealPath('.')
+            ->thenReturn('/working-dir');
+        Phake::when($fileUtil)
+            ->getRealPath('./')
+            ->thenReturn('/working-dir');
+        Phake::when($fileUtil)
+            ->getRealPath('file')
+            ->thenReturn('/working-dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('file/')
+            ->thenReturn('/working-dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('./file')
+            ->thenReturn('/working-dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('./file/')
+            ->thenReturn('/working-dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('dir')
+            ->thenReturn('/working-dir/dir');
+        Phake::when($fileUtil)
+            ->getRealPath('dir/')
+            ->thenReturn('/working-dir/dir');
+        Phake::when($fileUtil)
+            ->getRealPath('./dir')
+            ->thenReturn('/working-dir/dir');
+        Phake::when($fileUtil)
+            ->getRealPath('./dir/')
+            ->thenReturn('/working-dir/dir');
+        Phake::when($fileUtil)
+            ->getRealPath('dir/file')
+            ->thenReturn('/working-dir/dir/file');
+        Phake::when($fileUtil)
+            ->getRealPath('another_file')
+            ->thenReturn('/working-dir/another_file');
         return $fileUtil;
     }
 
