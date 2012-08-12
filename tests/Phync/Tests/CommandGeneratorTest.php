@@ -35,6 +35,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
 
     /**
      * @test
+     * @dataProvider provideFilePath
      */
     public function 特定のファイルだけをアップするコマンドを生成する()
     {
@@ -45,8 +46,23 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         );
     }
 
+    public function provideFilePath()
+    {
+        return array(
+            array('file'),
+            array('file/'),
+            array('./file'),
+            array('./file/'),
+            array('/working-dir/file'),
+            array('/working-dir/file/'),
+            array('..//working-dir/file'),
+            array('../working-dir/file/'),
+        );
+    }
+
     /**
      * @test
+     * @dataProvider provideDirPath
      */
     public function 特定のディレクトリ全体をアップするコマンドを生成する()
     {
@@ -57,27 +73,17 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function 特定のディレクトリ全体をアップするコマンドを生成する_2()
+    public function provideDirPath()
     {
-        $option = $this->createOption('dir/');
-        $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
-            $this->generator->getCommands($option)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function 特定のディレクトリ全体をアップするコマンドを生成する_3()
-    {
-        $option = $this->createOption('/working-dir/dir');
-        $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
-            $this->generator->getCommands($option)
+        return array(
+            array('dir'),
+            array('dir/'),
+            array('./dir'),
+            array('./dir/'),
+            array('/working-dir/dir'),
+            array('/working-dir/dir/'),
+            array('..//working-dir/dir'),
+            array('../working-dir/dir/'),
         );
     }
 
