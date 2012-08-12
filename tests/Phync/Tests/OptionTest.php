@@ -125,4 +125,13 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
         $option = $this->createOption('foo.txt', 'bar.txt');
         $this->assertEquals(array('foo.txt', 'bar.txt'), $option->getFiles());
     }
+
+    /**
+     * @test
+     */
+    public function getFiles_ファイル名が指定されていなければ空の配列()
+    {
+        $option = $this->createOption();
+        $this->assertEquals(array(), $option->getFiles());
+    }
 }
