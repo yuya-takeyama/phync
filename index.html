@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Phync by yuya-takeyama</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/yuya-takeyama/phync">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/yuya-takeyama/phync/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/yuya-takeyama/phync/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Phync</h1>
+          <p>rsync wrapper written in PHP</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/yuya-takeyama">yuya-takeyama</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>Phync</h1>
+
+<p>PHP による <code>rsync</code> ラッパ</p>
+
+<h2>Features</h2>
+
+<ol>
+<li>
+<code>rsync</code> のラッパとして動作し、複雑な <code>rsync</code> コマンドを簡単に生成・実行できる。</li>
+<li>複数のサーバにまとめてシンクできる。</li>
+<li>プロジェクトルートから全体のシンクができる。</li>
+<li>プロジェクトツリー内の一部のファイル・ディレクトリだけを選択してシンクできる。</li>
+<li>デフォルト動作は <code>rsync --dry-run</code> となっており、確認が安全に行える。</li>
+</ol><h2>Installation</h2>
+
+<h3>phync 本体</h3>
+
+<p>GitHub から <code>git</code> コマンドで直接インストールできます。<br>
+ワークツリーの <code>./bin</code> ディレクトリを <code>$PATH</code> に追加することで <code>phync</code> コマンドが使用できるようになります。</p>
+
+<pre><code>$ git clone https://github.com/yuya-takeyama/phync.git ~/.phync
+</code></pre>
+
+<p>GitHub の Subversion インターフェイスを使用すれば <code>svn</code> コマンドでもインストールできます。</p>
+
+<pre><code>$ svn co https://github.com/yuya-takeyama/phync/master ~/.phync
+</code></pre>
+
+<h3>各プロジェクトへのインストール</h3>
+
+<p>各プロジェクトごとに設定ファイル、ログディレクトリを設置する必要があります。</p>
+
+<p><code>phync</code> コマンドの実行時に、カレントディレクトリ内の <code>.phync/config.php</code> を読み込みます。</p>
+
+<p>また、ログディレクトリはデフォルトでは <code>.phync/log</code> となっており、予め作成しておく必要があります。</p>
+
+<h2>Usage</h2>
+
+<h3>ドライラン</h3>
+
+<p>デフォルトの動作は <code>rsync --dry-run</code> によるドライランです。<br>
+ドライランを行うと、実行時にどのような変更が行われるかを確認できます。  </p>
+
+<p>引数を指定しなければ、プロジェクト全体が対象となります。</p>
+
+<pre><code>$ phync
+# 以下のようなコマンドが生成される
+# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' 
+</code></pre>
+
+<p>引数を指定することで、一部のファイル・ディレクトリのみを対象とすることができます。<br>
+また、同時に複数のファイル・ディレクトリを指定することが出来ます。</p>
+
+<pre><code># ファイル
+$ phync path/to/file
+# 以下のようなコマンドが生成される
+# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --exclude '*'
+
+# ディレクトリ
+$ phync path/to/dir
+# 以下のようなコマンドが生成される
+# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
+
+# 複数まとめて
+$ phync path/to/file path/to/dir
+# 以下のようなコマンドが生成される
+# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
+</code></pre>
+
+<h3>シンクの実行</h3>
+
+<p><code>phync</code> コマンドの実行時に <code>--execute</code> オプションを付加することで、シンクが実行されます。</p>
+
+<p>このとき生成される <code>rsync</code> コマンドは、ドライラン時のものから <code>--dry-run</code> オプションのみが除かれたものです。</p>
+
+<pre><code># ファイル
+$ phync --execute path/to/file
+
+# ディレクトリ
+$ phync --execute path/to/dir
+
+# 複数まとめて
+$ phync --execute path/to/file path/to/dir
+</code></pre>
+
+<h2>Configuration</h2>
+
+<p>カレントディレクトリ内の <code>.phync/config.php</code> が設定ファイルとなります。<br>
+設定値は PHP の連想配列として記述できます。</p>
+
+<h3>設定ファイルの記述例</h3>
+
+<div class="highlight"><pre><span class="cp">&lt;?php</span>
+<span class="k">return</span> <span class="k">array</span><span class="p">(</span>
+    <span class="s1">'destinations'</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+        <span class="s1">'foo.example.com'</span><span class="p">,</span>
+        <span class="s1">'bar.example.com'</span><span class="p">,</span>
+        <span class="s1">'baz.example.com'</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s1">'exclude_from'</span> <span class="o">=&gt;</span> <span class="s1">'exclude.lst'</span><span class="p">,</span>
+    <span class="s1">'rsync_path'</span>   <span class="o">=&gt;</span> <span class="s1">'/usr/bin/rsync'</span><span class="p">,</span>
+    <span class="s1">'rsh'</span>          <span class="o">=&gt;</span> <span class="s1">'/usr/bin/ssh'</span><span class="p">,</span>
+<span class="p">);</span>
+</pre></div>
+
+<h3>各設定値の詳細</h3>
+
+<table>
+<tr>
+<th>項目名</th>
+<th>説明</th>
+<th>必須</th>
+<th>設定例</th>
+</tr>
+<tr>
+<td>destinations</td>
+<td>シンク先サーバのホスト名を配列で指定する。</td>
+<td>Yes</td>
+<td><code>array('server1.example.net', 'server2.example.net')</code></td>
+</tr>
+<tr>
+<td>exclude_from</td>
+<td>
+<code>rsync</code> コマンドの <code>--exclude-from</code> オプション。除外ファイルの一覧を記述したファイルを指定する。</td>
+<td>No</td>
+<td><code>dirname(__FILE__) . '/rsync_exclude'</code></td>
+</tr>
+<tr>
+<td>rsync_path</td>
+<td>
+<code>rsync</code> コマンドの <code>--rsync-path</code> オプション。</td>
+<td>No</td>
+<td><code>'/usr/bin/rsync'</code></td>
+</tr>
+<tr>
+<td>rsh</td>
+<td>
+<code>rsync</code> コマンドの <code>--rsh</code> オプション。</td>
+<td>No</td>
+<td><code>'/usr/bin/rsync'</code></td>
+</tr>
+<tr>
+<td>default_checksum</td>
+<td>
+<code>true</code> にすると <code>rsync</code> コマンドに <code>--checksum</code> オプションが付加される。デフォルトは <code>false</code>。</td>
+<td>No</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td>log_directory</td>
+<td>ログファイルを保存するディレクトリのパス。でフォルトは <code>.phync/log</code>
+</td>
+<td>No</td>
+<td><code>'/path/to/log-directory'</code></td>
+</tr>
+</table><h2>Author</h2>
+
+<p>Yuya Takeyama</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
