@@ -7,9 +7,10 @@ Features
 --------
 
 1. `rsync` のラッパとして動作し、複雑な `rsync` コマンドを簡単に生成・実行できる。
-2. プロジェクトルートから全体のシンクができる。
-3. プロジェクトツリー内の一部のファイル・ディレクトリだけを選択してシンクできる。
-4. デフォルト動作は `rsync --dry-run` となっており、確認が安全に行える。
+2. 複数のサーバにまとめてシンクできる。
+3. プロジェクトルートから全体のシンクができる。
+4. プロジェクトツリー内の一部のファイル・ディレクトリだけを選択してシンクできる。
+5. デフォルト動作は `rsync --dry-run` となっており、確認が安全に行える。
 
 Installation
 ------------
@@ -40,16 +41,37 @@ $ svn co https://github.com/yuya-takeyama/phync/master ~/.phync
 Usage
 -----
 
-引数としてファイルを指定すると、階層を保持して対象サーバに `rsync` します。
+### ドライラン
 
-デフォルトでは `--dry-run` オプションの指定によるドライランとなります。
+デフォルトの動作は `rsync --dry-run` によるドライランです。  
+ドライランを行うと、実行時にどのような変更が行われるかを確認できます。  
+
+引数を指定しなければ、プロジェクト全体が対象となります。
 
 ```
-$ /path/to/phync file-to-sync
-Generated commands:
-rsync -avC --dry-run --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'foo.example.com:/home/yuya/dev/php/phync/file-to-sync'
-rsync -avC --dry-run --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'bar.example.com:/home/yuya/dev/php/phync/file-to-sync'
-rsync -avC --dry-run --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'baz.example.com:/home/yuya/dev/php/phync/file-to-sync'
+$ phync
+# 以下のようなコマンドが生成される
+# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' 
+```
+
+引数を指定することで、一部のファイル・ディレクトリのみを対象とすることができます。  
+また、同時に複数のファイル・ディレクトリを指定することが出来ます。
+
+```
+# ファイル
+$ phync path/to/file
+# 以下のようなコマンドが生成される
+# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --exclude '*'
+
+# ディレクトリ
+$ phync path/to/dir
+# 以下のようなコマンドが生成される
+# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
+
+# 複数まとめて
+$ phync path/to/file path/to/dir
+# 以下のようなコマンドが生成される
+# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
 ```
 
 `--execute` オプションを指定することで、実際の同期を実行します。
@@ -61,6 +83,10 @@ rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '
 rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'bar.example.com:/home/yuya/dev/php/phync/file-to-sync'
 rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'baz.example.com:/home/yuya/dev/php/phync/file-to-sync'
 ```
+
+### シンクの実行
+
+`phync` コマンドの実行時に `--exclude` オプションを付加することで、シンクが実行されます。
 
 Configuration
 -------------
