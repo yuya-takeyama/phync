@@ -29,8 +29,6 @@ class Phync_Application
 {
     const STATUS_EXCEPTION = 255;
 
-    private $env;
-
     /**
      * @var Phync_Event_Dispatcher
      */
@@ -53,7 +51,6 @@ class Phync_Application
      */
     public function __construct($params)
     {
-        $this->env        = $params['env'];
         $this->option     = $params['option'];
         $this->config     = $params['config'];
         $this->fileUtil   = $params['file_util'];
@@ -75,7 +72,6 @@ class Phync_Application
     {
         try {
             $self = new self(array(
-                'env'       => $_SERVER,
                 'option'    => new Phync_Option($_SERVER['argv']),
                 'config'    => self::loadConfig(),
                 'file_util' => new Phync_FileUtil,
