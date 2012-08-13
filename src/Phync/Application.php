@@ -49,13 +49,12 @@ class Phync_Application
     /**
      * Constructor.
      *
-     * @param  array $argv PHP の $argv 変数を渡す.
-     * @param  array $env  PHP の $_SERVER 変数を渡す.
+     * @param array $params
      */
-    public function __construct($argv, $env)
+    public function __construct($params)
     {
-        $this->env        = $env;
-        $this->option     = new Phync_Option($argv);
+        $this->env        = $params['env'];
+        $this->option     = $params['option'];
         $this->dispatcher = new Phync_Event_Dispatcher;
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
@@ -65,6 +64,18 @@ class Phync_Application
         $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayBeforeExecutionMessage'));
         $this->dispatcher->on('after_all_command_execution', array($this, 'displayExitStatus'));
+    }
+
+    /**
+     * コンストラクタに適切な引数を渡して実行する
+     */
+    public static function start()
+    {
+        $self = new self(array(
+            'env'    => $_SERVER,
+            'option' => new Phync_Option($_SERVER['argv']),
+        ));
+        return $self->run();
     }
 
     public function run()
