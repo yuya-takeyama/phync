@@ -74,16 +74,6 @@ $ phync path/to/file path/to/dir
 # rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
 ```
 
-`--execute` オプションを指定することで、実際の同期を実行します。
-
-```
-$ /path/to/phync --execute file-to-sync
-Generated commands:
-rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'foo.example.com:/home/yuya/dev/php/phync/file-to-sync'
-rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'bar.example.com:/home/yuya/dev/php/phync/file-to-sync'
-rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '--rsh=/usr/bin/ssh' '/home/yuya/dev/php/phync/file-to-sync' 'baz.example.com:/home/yuya/dev/php/phync/file-to-sync'
-```
-
 ### シンクの実行
 
 `phync` コマンドの実行時に `--execute` オプションを付加することで、シンクが実行されます。
@@ -105,8 +95,6 @@ Configuration
 -------------
 
 カレントディレクトリ内の `.phync/config.php` が設定ファイルとなります。
-
-`$HOME/.phync/config/config.php` に設定ファイルが必要です。
 
 ### Example
 
