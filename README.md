@@ -3,6 +3,34 @@ Phync
 
 PHP によるシンプルな `rsync` ラッパ
 
+プロジェクトごとに設定を持ち、プロジェクト全体のシンクと、プロジェクトの一部のシンクの両方に対応しています。
+
+Installation
+------------
+
+### phync 本体
+
+GitHub から `git` コマンドで直接インストールできます。  
+ワークツリーの `./bin` ディレクトリを `$PATH` に追加することで `phync` コマンドが使用できるようになります。
+
+```
+$ git clone https://github.com/yuya-takeyama/phync.git ~/.phync
+```
+
+GitHub の Subversion インターフェイスを使用すれば `svn` コマンドでもインストールできます。
+
+```
+$ svn co https://github.com/yuya-takeyama/phync/master ~/.phync
+```
+
+### 各プロジェクトへのインストール
+
+各プロジェクトごとに設定ファイル、ログディレクトリを設置する必要があります。
+
+`phync` コマンドの実行時に、カレントディレクトリ内の `.phync/config.php` を読み込みます。
+
+また、ログディレクトリはデフォルトでは `.phync/log` となっており、予め作成しておく必要があります。
+
 Usage
 -----
 
