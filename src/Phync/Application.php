@@ -55,6 +55,7 @@ class Phync_Application
     {
         $this->env        = $params['env'];
         $this->option     = $params['option'];
+        $this->config     = $params['config'];
         $this->dispatcher = new Phync_Event_Dispatcher;
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
@@ -75,6 +76,7 @@ class Phync_Application
             $self = new self(array(
                 'env'    => $_SERVER,
                 'option' => new Phync_Option($_SERVER['argv']),
+                'config' => self::loadConfig(),
             ));
             return $self->run();
         }
@@ -88,7 +90,6 @@ class Phync_Application
     public function run()
     {
         echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
-        $this->loadConfig();
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
         $generator = new Phync_CommandGenerator($this->config, new Phync_FileUtil);
         $commands  = $generator->getCommands($this->option);
@@ -111,18 +112,18 @@ class Phync_Application
         $this->dispatcher->dispatch('after_all_command_execution', $this->getEvent());
     }
 
-    private function loadConfig()
+    public static function loadConfig()
     {
         $file = '.phync' . DIRECTORY_SEPARATOR . 'config.php';
         if (file_exists($file) && is_readable($file)) {
             $config = include $file;
             try {
-                $this->config = new Phync_Config($config);
+                return new Phync_Config($config);
             } catch (Exception $e) {
-                throw new RuntimeException($this->getConfigExample($e->getMessage()));
+                throw new RuntimeException(self::getConfigExample($e->getMessage()));
             }
         } else {
-            throw new Phync_Exception_ConfigNotFound($this->getConfigExample("Configuration file \"{$file}\" is not found."));
+            throw new Phync_Exception_ConfigNotFound(self::getConfigExample("Configuration file \"{$file}\" is not found."));
         }
     }
 
@@ -132,7 +133,7 @@ class Phync_Application
             DIRECTORY_SEPARATOR . 'log';
     }
 
-    public function getConfigExample($message)
+    public static function getConfigExample($message)
     {
         return <<<__EXAMPLE__
 {$message}
