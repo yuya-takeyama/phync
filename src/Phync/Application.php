@@ -56,6 +56,7 @@ class Phync_Application
         $this->env        = $params['env'];
         $this->option     = $params['option'];
         $this->config     = $params['config'];
+        $this->fileUtil   = $params['file_util'];
         $this->dispatcher = new Phync_Event_Dispatcher;
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
@@ -74,9 +75,10 @@ class Phync_Application
     {
         try {
             $self = new self(array(
-                'env'    => $_SERVER,
-                'option' => new Phync_Option($_SERVER['argv']),
-                'config' => self::loadConfig(),
+                'env'       => $_SERVER,
+                'option'    => new Phync_Option($_SERVER['argv']),
+                'config'    => self::loadConfig(),
+                'file_util' => new Phync_FileUtil,
             ));
             return $self->run();
         }
@@ -91,7 +93,7 @@ class Phync_Application
     {
         echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
-        $generator = new Phync_CommandGenerator($this->config, new Phync_FileUtil);
+        $generator = new Phync_CommandGenerator($this->config, $this->fileUtil);
         $commands  = $generator->getCommands($this->option);
         $this->dispatcher->dispatch('before_all_command_execution', array(
             'app'      => $this,
@@ -129,8 +131,11 @@ class Phync_Application
 
     public function getLogDirectory()
     {
-        return $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync' .
-            DIRECTORY_SEPARATOR . 'log';
+        if ($this->config->hasLogDirectory()) {
+            return $this->fileUtil->getRealPath($this->config->getLogDirectory());
+        } else {
+            return  $this->fileUtil->getRealPath('.phync' . DIRECTORY_SEPARATOR . 'log');
+        }
     }
 
     public static function getConfigExample($message)
