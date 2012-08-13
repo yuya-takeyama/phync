@@ -97,7 +97,7 @@ Configuration
 カレントディレクトリ内の `.phync/config.php` が設定ファイルとなります。  
 設定値は PHP の連想配列として記述できます。
 
-### Example
+### 設定ファイルの記述例
 
 ```php
 <?php
@@ -115,14 +115,14 @@ return array(
 
 ### 各設定値の詳細
 
-項目名           |説明                                                                                              |必須|設定例                                               |
------------------|--------------------------------------------------------------------------------------------------|----|-----------------------------------------------------|
-destinations     |シンク先サーバのホスト名を配列でしていする。                                                      |Yes |`array('server1.example.net', 'server2.example.net')`|
-exclude\_from    |`rsync` コマンドの `--exclude-from` オプション。除外ファイルの一覧を記述したファイルをしていする。|No  |`dirname(__FILE__) . '/rsync_exclude'`               |
-rsync\_path      |`rsync` コマンドの `--rsync-path` オプション。                                                    |No  |`'/usr/bin/rsync'`                                   |
-rsh              |`rsync` コマンドの `--rsh` オプション。                                                           |No  |`'/usr/bin/rsync'`                                   |
-default\_checksum|`true` にすると `rsync` コマンドに `--checksum` オプションが付加される。デフォルトは `false`。    |No  |`true`                                               |
-log\_directory   |ログファイルを保存するディレクトリのパス。でフォルトは `.phync/log`                               |No  |`'/path/to/log-directory'`                           |
+項目名           |説明                                                                                            |必須|設定例                                               |
+-----------------|------------------------------------------------------------------------------------------------|----|-----------------------------------------------------|
+destinations     |シンク先サーバのホスト名を配列で指定する。                                                      |Yes |`array('server1.example.net', 'server2.example.net')`|
+exclude\_from    |`rsync` コマンドの `--exclude-from` オプション。除外ファイルの一覧を記述したファイルを指定する。|No  |`dirname(__FILE__) . '/rsync_exclude'`               |
+rsync\_path      |`rsync` コマンドの `--rsync-path` オプション。                                                  |No  |`'/usr/bin/rsync'`                                   |
+rsh              |`rsync` コマンドの `--rsh` オプション。                                                         |No  |`'/usr/bin/rsync'`                                   |
+default\_checksum|`true` にすると `rsync` コマンドに `--checksum` オプションが付加される。デフォルトは `false`。  |No  |`true`                                               |
+log\_directory   |ログファイルを保存するディレクトリのパス。でフォルトは `.phync/log`                             |No  |`'/path/to/log-directory'`                           |
 
 Author
 ------
