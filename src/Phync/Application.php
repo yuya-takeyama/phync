@@ -71,44 +71,44 @@ class Phync_Application
      */
     public static function start()
     {
-        $self = new self(array(
-            'env'    => $_SERVER,
-            'option' => new Phync_Option($_SERVER['argv']),
-        ));
-        return $self->run();
-    }
-
-    public function run()
-    {
-        echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
         try {
-            $this->loadConfig();
-            $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
-            $generator = new Phync_CommandGenerator($this->config, new Phync_FileUtil);
-            $commands  = $generator->getCommands($this->option);
-            $this->dispatcher->dispatch('before_all_command_execution', array(
-                'app'      => $this,
-                'commands' => $commands
+            $self = new self(array(
+                'env'    => $_SERVER,
+                'option' => new Phync_Option($_SERVER['argv']),
             ));
-            foreach ($commands as $command) {
-                $this->dispatcher->dispatch('before_command_execution', array(
-                    'app'     => $this,
-                    'command' => $command,
-                ));
-                passthru($command, $status);
-                $this->dispatcher->dispatch('after_command_execution', array(
-                    'app'     => $this,
-                    'command' => $command,
-                    'status'  => $status
-                ));
-            }
-            $this->dispatcher->dispatch('after_all_command_execution', $this->getEvent());
+            return $self->run();
         }
         catch (Exception $e) {
             $klass = get_class($e);
             echo "{$klass}: {$e->getMessage()}", PHP_EOL;
             exit(Phync_Application::STATUS_EXCEPTION);
         }
+    }
+
+    public function run()
+    {
+        echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
+        $this->loadConfig();
+        $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
+        $generator = new Phync_CommandGenerator($this->config, new Phync_FileUtil);
+        $commands  = $generator->getCommands($this->option);
+        $this->dispatcher->dispatch('before_all_command_execution', array(
+            'app'      => $this,
+            'commands' => $commands
+        ));
+        foreach ($commands as $command) {
+            $this->dispatcher->dispatch('before_command_execution', array(
+                'app'     => $this,
+                'command' => $command,
+            ));
+            passthru($command, $status);
+            $this->dispatcher->dispatch('after_command_execution', array(
+                'app'     => $this,
+                'command' => $command,
+                'status'  => $status
+            ));
+        }
+        $this->dispatcher->dispatch('after_all_command_execution', $this->getEvent());
     }
 
     private function loadConfig()
