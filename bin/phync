@@ -15,12 +15,4 @@ set_include_path(
     get_include_path()
 );
 require_once 'Phync.php';
-
-echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
-try {
-    exit(Phync_Application::start());
-} catch (Exception $e) {
-    $klass = get_class($e);
-    echo "{$klass}: {$e->getMessage()}", PHP_EOL;
-    exit(Phync_Application::STATUS_EXCEPTION);
-}
+exit(Phync_Application::start());
