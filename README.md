@@ -86,10 +86,25 @@ rsync -avC --delete '--exclude-from=exclude.lst' '--rsync-path=/usr/bin/rsync' '
 
 ### シンクの実行
 
-`phync` コマンドの実行時に `--exclude` オプションを付加することで、シンクが実行されます。
+`phync` コマンドの実行時に `--execute` オプションを付加することで、シンクが実行されます。
+
+このとき生成される `rsync` コマンドは、ドライラン時のものから `--dry-run` オプションのみが除かれたものです。
+
+```
+# ファイル
+$ phync --execute path/to/file
+
+# ディレクトリ
+$ phync --execute path/to/dir
+
+# 複数まとめて
+$ phync --execute path/to/file path/to/dir
+```
 
 Configuration
 -------------
+
+カレントディレクトリ内の `.phync/config.php` が設定ファイルとなります。
 
 `$HOME/.phync/config/config.php` に設定ファイルが必要です。
 
