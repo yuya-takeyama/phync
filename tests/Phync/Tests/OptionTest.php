@@ -120,19 +120,10 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function hasFiles_ファイル名の指定が無ければfalse()
+    public function getFiles_指定されたファイル名を配列で取得する()
     {
-        $option = $this->createOption();
-        $this->assertFalse($option->hasFiles());
-    }
-
-    /**
-     * @test
-     */
-    public function hasFiles_ファイル名が指定されていればtrue()
-    {
-        $option = $this->createOption('README.md');
-        $this->assertTrue($option->hasFiles());
+        $option = $this->createOption('foo.txt', 'bar.txt');
+        $this->assertEquals(array('foo.txt', 'bar.txt'), $option->getFiles());
     }
 
     /**
@@ -142,14 +133,5 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption();
         $this->assertEquals(array(), $option->getFiles());
-    }
-
-    /**
-     * @test
-     */
-    public function getFiles_指定されたファイル名を配列で取得する()
-    {
-        $option = $this->createOption('foo.txt', 'bar.txt');
-        $this->assertEquals(array('foo.txt', 'bar.txt'), $option->getFiles());
     }
 }

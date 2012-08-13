@@ -56,27 +56,72 @@ class Phync_CommandGenerator
             if ($this->config->hasRsh()) {
                 $command .= ' ' . $this->fileUtil->shellescape("--rsh={$this->config->getRsh()}");
             }
-            foreach ($option->getFiles() as $file) {
-                $commands[] = $command . ' ' . $this->getFileArgument($destination, $file);
-            }
+            $commands[] = sprintf(
+                '%s %s%s',
+                $command,
+                $this->getArgsToSyncCwd($destination),
+                $this->getArgsForSpecificFiles($option->getFiles())
+            );
         }
         return $commands;
     }
 
-    /**
-     * ファイルとそのアップロード先を指定する引数を取得する.
-     *
-     * @param  string $destination
-     * @param  string $file
-     * @return string
-     */
-    private function getFileArgument($destination, $file)
+    public function getArgsToSyncCwd($destination)
     {
-        $file = $this->fileUtil->getRealPath($file);
-        if ($this->fileUtil->isDir($file)) {
-            $file .= "/";
+        $util = $this->fileUtil;
+        $path = $util->getRealPath($util->getCwd()) . DIRECTORY_SEPARATOR;
+        return sprintf('%s %s', $util->shellescape($path), $util->shellescape("{$destination}:{$path}"));
+    }
+
+    public function getArgsForSpecificFiles($files)
+    {
+        if (count($files) === 0) {
+            return '';
         }
-        return $this->fileUtil->shellescape($file) . ' ' .
-            $this->fileUtil->shellescape("{$destination}:" . $file);
+        $result = '';
+        $util   = $this->fileUtil;
+        $includeAdded = false;
+        foreach ($files as $file) {
+            $file = $util->getRealPath($file);
+            if ($file === $util->getCwd()) {
+                continue;
+            }
+            if ($util->isDir($file)) {
+                $result .= $this->generateIncludeOptionForDir($file);
+                $includeAdded = true;
+            } else {
+                $result .= $this->generateIncludeOptionForFile($file);
+                $includeAdded = true;
+            }
+        }
+        if ($includeAdded) {
+            $result .= " --exclude '*'";
+        }
+        return $result;
+    }
+
+    private function generateIncludeOptionForFile($file)
+    {
+        $util   = $this->fileUtil;
+        $result = '';
+        $names = explode(DIRECTORY_SEPARATOR, $util->getRelativePath($file, $util->getCwd()));
+        $count = count($names);
+        for ($i = 0; $i < $count; $i++) {
+            $result .= ' --include ' . $util->shellescape('/' . join(DIRECTORY_SEPARATOR, $names) . ($i > 0 ? '/' : ''));
+            array_pop($names);
+        }
+        return $result;
+    }
+
+    private function generateIncludeOptionForDir($file)
+    {
+        $util = $this->fileUtil;
+        $file = $util->getRelativePath($file, $util->getCwd());
+        return sprintf(
+            ' --include %s --include %s --include %s',
+            $util->shellescape("/{$file}/"),
+            $util->shellescape("/{$file}/*"),
+            $util->shellescape("/{$file}/**/*")
+        );
     }
 }

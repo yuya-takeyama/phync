@@ -70,4 +70,14 @@ class Phync_Config
         return array_key_exists('default_checksum', $this->config) &&
             (bool) $this->config['default_checksum'];
     }
+
+    public function hasLogDirectory()
+    {
+        return array_key_exists('log_directory', $this->config);
+    }
+
+    public function getLogDirectory()
+    {
+        return $this->config['log_directory'];
+    }
 }

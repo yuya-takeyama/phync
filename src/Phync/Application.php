@@ -29,8 +29,6 @@ class Phync_Application
 {
     const STATUS_EXCEPTION = 255;
 
-    private $env;
-
     /**
      * @var Phync_Event_Dispatcher
      */
@@ -49,18 +47,17 @@ class Phync_Application
     /**
      * Constructor.
      *
-     * @param  array $argv PHP の $argv 変数を渡す.
-     * @param  array $env  PHP の $_SERVER 変数を渡す.
+     * @param array $params
      */
-    public function __construct($argv, $env)
+    public function __construct($params)
     {
-        $this->env        = $env;
-        $this->option     = new Phync_Option($argv);
+        $this->option     = $params['option'];
+        $this->config     = $params['config'];
+        $this->fileUtil   = $params['file_util'];
         $this->dispatcher = new Phync_Event_Dispatcher;
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
 
-        $this->dispatcher->on('after_config_loading', array($this, 'validateOption'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayCommands'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
@@ -68,11 +65,31 @@ class Phync_Application
         $this->dispatcher->on('after_all_command_execution', array($this, 'displayExitStatus'));
     }
 
+    /**
+     * コンストラクタに適切な引数を渡して実行する
+     */
+    public static function start()
+    {
+        try {
+            $self = new self(array(
+                'option'    => new Phync_Option($_SERVER['argv']),
+                'config'    => self::loadConfig(),
+                'file_util' => new Phync_FileUtil,
+            ));
+            return $self->run();
+        }
+        catch (Exception $e) {
+            $klass = get_class($e);
+            echo "{$klass}: {$e->getMessage()}", PHP_EOL;
+            exit(Phync_Application::STATUS_EXCEPTION);
+        }
+    }
+
     public function run()
     {
-        $this->loadConfig();
+        echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
-        $generator = new Phync_CommandGenerator($this->config, new Phync_FileUtil);
+        $generator = new Phync_CommandGenerator($this->config, $this->fileUtil);
         $commands  = $generator->getCommands($this->option);
         $this->dispatcher->dispatch('before_all_command_execution', array(
             'app'      => $this,
@@ -93,29 +110,31 @@ class Phync_Application
         $this->dispatcher->dispatch('after_all_command_execution', $this->getEvent());
     }
 
-    private function loadConfig()
+    public static function loadConfig()
     {
-        $file = $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync' .
-            DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
+        $file = '.phync' . DIRECTORY_SEPARATOR . 'config.php';
         if (file_exists($file) && is_readable($file)) {
             $config = include $file;
             try {
-                $this->config = new Phync_Config($config);
+                return new Phync_Config($config);
             } catch (Exception $e) {
-                throw new RuntimeException($this->getConfigExample($e->getMessage()));
+                throw new RuntimeException(self::getConfigExample($e->getMessage()));
             }
         } else {
-            throw new Phync_Exception_ConfigNotFound($this->getConfigExample("Configuration file \"{$file}\" is not found."));
+            throw new Phync_Exception_ConfigNotFound(self::getConfigExample("Configuration file \"{$file}\" is not found."));
         }
     }
 
     public function getLogDirectory()
     {
-        return $this->env['HOME'] . DIRECTORY_SEPARATOR . '.phync' .
-            DIRECTORY_SEPARATOR . 'log';
+        if ($this->config->hasLogDirectory()) {
+            return $this->fileUtil->getRealPath($this->config->getLogDirectory());
+        } else {
+            return  $this->fileUtil->getRealPath('.phync' . DIRECTORY_SEPARATOR . 'log');
+        }
     }
 
-    public function getConfigExample($message)
+    public static function getConfigExample($message)
     {
         return <<<__EXAMPLE__
 {$message}
@@ -154,14 +173,6 @@ __USAGE__;
     public function getEvent()
     {
         return new Phync_Event_Event(array('app' => $this));
-    }
-
-    public static function validateOption($event)
-    {
-        $app = $event->app;
-        if (!$app->getOption()->hasFiles()) {
-            throw new Phync_Exception_InvalidArgument($app->getUsage("No files are specified."));
-        }
     }
 
     public static function validateFiles($event)
