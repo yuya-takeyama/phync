@@ -89,18 +89,24 @@ class Phync_RsyncExecuter
         ));
         if ($this->isInFileList()) {
             if ($this->isUploadDirLine($line, $path)) {
-                $this->dispatcher->dispatch('stdout.upload_dir', array(
+                $this->dispatcher->dispatch('stdout.upload_dir_line', array(
                     'line' => $line,
                     'path' => $path,
                 ));
             } else if ($this->isUploadFileLine($line, $path)) {
-                $this->dispatcher->dispatch('stdout.upload_file', array(
+                $this->dispatcher->dispatch('stdout.upload_file_line', array(
                     'line' => $line,
                     'path' => $path,
                 ));
+            } else {
+                $this->dispatcher->dispatch('stdout.normal_line', array(
+                    'line' => $line,
+                ));
             }
         } else {
-            $this->dispatcher->dispatch('stdout.normal');
+            $this->dispatcher->dispatch('stdout.normal_line', array(
+                'line' => $line,
+            ));
         }
         if (! $this->isInFileList() && preg_match('/^building file list \.\.\./', $line)) {
             $this->isInFileList = true;
@@ -124,6 +130,24 @@ class Phync_RsyncExecuter
     {
         $this->throwIfNotCallable($callback);
         $this->dispatcher->on('stderr', $callback);
+    }
+
+    public function onNormalLine($callback)
+    {
+        $this->throwIfNotCallable($callback);
+        $this->dispatcher->on('stdout.normal_line', $callback);
+    }
+
+    public function onUploadDirLine($callback)
+    {
+        $this->throwIfNotCallable($callback);
+        $this->dispatcher->on('stdout.upload_dir_line', $callback);
+    }
+
+    public function onUploadFileLine($callback)
+    {
+        $this->throwIfNotCallable($callback);
+        $this->dispatcher->on('stdout.upload_file_line', $callback);
     }
 
     private function throwIfNotCallable($callback)

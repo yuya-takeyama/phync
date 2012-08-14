@@ -77,6 +77,9 @@ class Phync_Application
 
         $this->rsyncExecuter->onStdout(array($this, 'receiveStdout'));
         $this->rsyncExecuter->onStderr(array($this, 'receiveStderr'));
+        $this->rsyncExecuter->onNormalLine(array($this, 'receiveNormalLine'));
+        $this->rsyncExecuter->onUploadDirLine(array($this, 'receiveUploadDirLine'));
+        $this->rsyncExecuter->onUploadFileLine(array($this, 'receiveUploadFileLine'));
     }
 
     /**
@@ -136,12 +139,27 @@ class Phync_Application
 
     public function receiveStdout($event)
     {
-        echo "[STDOUT] {$event->line}";
+        echo "[STDOUT] ";
     }
 
     public function receiveStderr($event)
     {
-        echo "[STDERR] {$event->line}";
+        echo "[STDERR] ";
+    }
+
+    public function receiveNormalLine($event)
+    {
+        echo $event->line;
+    }
+
+    public function receiveUploadDirLine($event)
+    {
+        echo $event->line;
+    }
+
+    public function receiveUploadFileLine($event)
+    {
+        echo $event->line;
     }
 
     public static function loadConfig()
