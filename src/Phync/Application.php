@@ -144,7 +144,7 @@ class Phync_Application
 
     public function receiveStderr($event)
     {
-        echo "[STDERR] ";
+        echo "[STDERR] {$event->line}";
     }
 
     public function receiveNormalLine($event)
