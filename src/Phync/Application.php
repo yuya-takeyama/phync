@@ -91,23 +91,33 @@ class Phync_Application
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
         $generator = new Phync_CommandGenerator($this->config, $this->fileUtil);
         $commands  = $generator->getCommands($this->option);
+        $this->executeCommands($commands);
+    }
+
+    private function executeCommands($commands)
+    {
         $this->dispatcher->dispatch('before_all_command_execution', array(
             'app'      => $this,
             'commands' => $commands
         ));
         foreach ($commands as $command) {
-            $this->dispatcher->dispatch('before_command_execution', array(
-                'app'     => $this,
-                'command' => $command,
-            ));
-            passthru($command, $status);
-            $this->dispatcher->dispatch('after_command_execution', array(
-                'app'     => $this,
-                'command' => $command,
-                'status'  => $status
-            ));
+            $this->executeCommand($command);
         }
         $this->dispatcher->dispatch('after_all_command_execution', $this->getEvent());
+    }
+
+    private function executeCommand($command)
+    {
+        $this->dispatcher->dispatch('before_command_execution', array(
+            'app'     => $this,
+            'command' => $command,
+        ));
+        passthru($command, $status);
+        $this->dispatcher->dispatch('after_command_execution', array(
+            'app'     => $this,
+            'command' => $command,
+            'status'  => $status
+        ));
     }
 
     public static function loadConfig()
