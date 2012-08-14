@@ -82,6 +82,7 @@ class Phync_Application
         $this->rsyncExecuter->onNormalLine(array($this, 'receiveNormalLine'));
         $this->rsyncExecuter->onUploadDirLine(array($this, 'receiveUploadDirLine'));
         $this->rsyncExecuter->onUploadFileLine(array($this, 'receiveUploadFileLine'));
+        $this->rsyncExecuter->onCreateDirLine(array($this, 'receiveCreateDirLine'));
     }
 
     /**
@@ -162,6 +163,11 @@ class Phync_Application
     public function receiveUploadFileLine($event)
     {
         echo $this->colorizer->color($event->line, 'green');
+    }
+
+    public function receiveCreateDirLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'yellow');
     }
 
     public static function loadConfig()

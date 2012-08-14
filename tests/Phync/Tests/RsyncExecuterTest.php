@@ -140,4 +140,41 @@ class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
         $this->assertNull($path);
     }
 
+    /**
+     * @test
+     */
+    public function isCreateDirLine_ディレクトリの作成を示す行であればtrue()
+    {
+        $this->executer->setInFileList();
+        $this->assertTrue($this->executer->isCreateDirLine("created directory path/to/dir/\n", $path));
+    }
+
+    /**
+     * @test
+     */
+    public function isCreateDirLine_ディレクトリの作成を示す行であれば変数pathにパス名をセットする()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isCreateDirLine("created directory path/to/dir/\n", $path);
+        $this->assertEquals('path/to/dir/', $path);
+    }
+
+    /**
+     * @test
+     */
+    public function isCreateDirLine_ディレクトリの作成を示す行でなければfalse()
+    {
+        $this->executer->setInFileList();
+        $this->assertFalse($this->executer->isCreateDirLine("path/to/dir/\n", $path));
+    }
+
+    /**
+     * @test
+     */
+    public function isCreateDirLine_ディレクトリの作成を示す行でなければ変数pathはNULL()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isCreateDirLine("path/to/dir/\n", $path);
+        $this->assertNull($path);
+    }
 }

@@ -98,6 +98,11 @@ class Phync_RsyncExecuter
                     'line' => $line,
                     'path' => $path,
                 ));
+            } else if ($this->isCreateDirLine($line, $path)) {
+                $this->dispatcher->dispatch('stdout.create_dir_line', array(
+                    'line' => $line,
+                    'path' => $path,
+                ));
             } else {
                 $this->dispatcher->dispatch('stdout.normal_line', array(
                     'line' => $line,
@@ -150,6 +155,12 @@ class Phync_RsyncExecuter
         $this->dispatcher->on('stdout.upload_file_line', $callback);
     }
 
+    public function onCreateDirLine($callback)
+    {
+        $this->throwIfNotCallable($callback);
+        $this->dispatcher->on('stdout.create_dir_line', $callback);
+    }
+
     private function throwIfNotCallable($callback)
     {
         if (! is_callable($callback)) {
@@ -194,6 +205,25 @@ class Phync_RsyncExecuter
             if ($this->fileUtil->isFile($parsedPath)) {
                 $path = $parsedPath;
                 return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function isCreateDirLine($line, &$path)
+    {
+        if ($this->isInFileList()) {
+            if (preg_match('/^created directory (.*)\n$/', $line, $matches)) {
+                $parsedPath = $matches[1];
+                if ($this->fileUtil->isDir($parsedPath)) {
+                    $path = $parsedPath;
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
                 return false;
             }
