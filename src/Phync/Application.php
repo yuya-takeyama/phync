@@ -11,6 +11,7 @@
 require_once dirname(__FILE__) . '/Config.php';
 require_once dirname(__FILE__) . '/Option.php';
 require_once dirname(__FILE__) . '/FileUtil.php';
+require_once dirname(__FILE__) . '/Console/Colorizer.php';
 require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
@@ -61,6 +62,7 @@ class Phync_Application
         $this->config     = $params['config'];
         $this->fileUtil   = $params['file_util'];
         $this->dispatcher = new Phync_Event_Dispatcher;
+        $this->colorizer  = new Phync_Console_Colorizer;
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
 
@@ -144,7 +146,7 @@ class Phync_Application
 
     public function receiveStderr($event)
     {
-        echo "[STDERR] {$event->line}";
+        echo $this->colorizer->color('[STDERR]', 'red') . ' ' . $event->line;
     }
 
     public function receiveNormalLine($event)
@@ -154,12 +156,12 @@ class Phync_Application
 
     public function receiveUploadDirLine($event)
     {
-        echo $event->line;
+        echo $this->colorizer->color($event->line, 'cyan');
     }
 
     public function receiveUploadFileLine($event)
     {
-        echo $event->line;
+        echo $this->colorizer->color($event->line, 'green');
     }
 
     public static function loadConfig()
