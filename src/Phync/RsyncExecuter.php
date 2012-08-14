@@ -88,7 +88,13 @@ class Phync_RsyncExecuter
             'line' => $line,
         ));
         if ($this->isInFileList()) {
-            if ($this->isUploadDirLine($line, $path)) {
+            if ($this->isUploadSymlinkLine($line, $path, $toPath)) {
+                $this->dispatcher->dispatch('stdout.upload_symlink_line', array(
+                    'line'    => $line,
+                    'path'    => $path,
+                    'to_path' => $toPath,
+                ));
+            } else if ($this->isUploadDirLine($line, $path)) {
                 $this->dispatcher->dispatch('stdout.upload_dir_line', array(
                     'line' => $line,
                     'path' => $path,
@@ -161,6 +167,12 @@ class Phync_RsyncExecuter
         $this->dispatcher->on('stdout.create_dir_line', $callback);
     }
 
+    public function onUploadSymlinkLine($callback)
+    {
+        $this->throwIfNotCallable($callback);
+        $this->dispatcher->on('stdout.upload_symlink_line', $callback);
+    }
+
     private function throwIfNotCallable($callback)
     {
         if (! is_callable($callback)) {
@@ -220,6 +232,27 @@ class Phync_RsyncExecuter
                 $parsedPath = $matches[1];
                 if ($this->fileUtil->isDir($parsedPath)) {
                     $path = $parsedPath;
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function isUploadSymlinkLine($line, &$path, &$toPath)
+    {
+        if ($this->isInFileList()) {
+            if (preg_match('/^(.*) -> (.*)\n$/', $line, $matches)) {
+                $parsedPath   = $matches[1];
+                $parsedToPath = $matches[2];
+                if ($this->fileUtil->isLink($parsedPath)) {
+                    $path   = $parsedPath;
+                    $toPath = $parsedToPath;
                     return true;
                 } else {
                     return false;

@@ -37,6 +37,11 @@ class Phync_FileUtil
         return is_file($path);
     }
 
+    public function isLink($path)
+    {
+        return is_link($path);
+    }
+
     public function shellescape($arg)
     {
         return escapeshellarg($arg);

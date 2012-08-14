@@ -31,6 +31,15 @@ class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
         Phake::when($fileUtil)
             ->isFile('path/to/file')
             ->thenReturn(true);
+        Phake::when($fileUtil)
+            ->isLink('path/to/dir/')
+            ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->isLink('path/to/file')
+            ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->isLink('path/to/link')
+            ->thenReturn(true);
 
         $this->executer = new Phync_RsyncExecuter(array(
             'event_dispatcher' => new Phync_Event_Dispatcher,
@@ -177,4 +186,45 @@ class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
         $this->executer->isCreateDirLine("path/to/dir/\n", $path);
         $this->assertNull($path);
     }
+
+    /**
+     * @test
+     */
+    public function isUploadSymlinkLine_シンボリックリンクのアップロードを示す行であればtrue()
+    {
+        $this->executer->setInFileList();
+        $this->assertTrue($this->executer->isUploadSymlinkLine("path/to/link -> path/to/file\n", $path, $toPath));
+    }
+
+    /**
+     * @test
+     */
+    public function isUploadSymlinkLine_シンボリックリンクのアップロードを示す行であれば変数pathにシンボリックリンクのパス名をセットする()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isUploadSymlinkLine("path/to/link -> path/to/file\n", $path, $toPath);
+        $this->assertEquals('path/to/link', $path);
+        $this->assertEquals('path/to/file', $toPath);
+    }
+
+    /**
+     * @test
+     */
+    public function isUploadSymlinkLine_シンボリックリンクのアップロードを示す行でなければfalse()
+    {
+        $this->executer->setInFileList();
+        $this->assertFalse($this->executer->isUploadSymlinkLine("path/to/line -> path/to/file\n", $path, $toPath));
+    }
+
+    /**
+     * @test
+     */
+    public function isUploadSymlinkLine_シンボリックリンクのアップロードを示す行でなければ変数pathはNULL()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isUploadSymlinkLine("path/to/dir/\n", $path, $toPath);
+        $this->assertNull($path);
+        $this->assertNull($toPath);
+    }
+
 }
