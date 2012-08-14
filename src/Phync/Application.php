@@ -15,6 +15,7 @@ require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
+require_once dirname(__FILE__) . '/RsyncExecuter.php';
 require_once dirname(__FILE__) . '/Exception/ConfigNotFound.php';
 require_once dirname(__FILE__) . '/Exception/InvalidArgument.php';
 require_once dirname(__FILE__) . '/Exception/FileNotFound.php';
@@ -33,6 +34,11 @@ class Phync_Application
      * @var Phync_Event_Dispatcher
      */
     private $dispatcher;
+
+    /**
+     * @var Phync_RsyncExecuter
+     */
+    private $rsyncExecuter;
 
     /**
      * @var Phync_Option
@@ -63,6 +69,11 @@ class Phync_Application
         $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayBeforeExecutionMessage'));
         $this->dispatcher->on('after_all_command_execution', array($this, 'displayExitStatus'));
+
+        $this->rsyncExecuter = new Phync_RsyncExecuter(new Phync_Event_Dispatcher);
+
+        $this->rsyncExecuter->onStdout(array($this, 'receiveStdout'));
+        $this->rsyncExecuter->onStderr(array($this, 'receiveStderr'));
     }
 
     /**
@@ -112,12 +123,22 @@ class Phync_Application
             'app'     => $this,
             'command' => $command,
         ));
-        passthru($command, $status);
+        $status = $this->rsyncExecuter->execute($command);
         $this->dispatcher->dispatch('after_command_execution', array(
             'app'     => $this,
             'command' => $command,
             'status'  => $status
         ));
+    }
+
+    public function receiveStdout($event)
+    {
+        echo "[STDOUT] {$event->line}";
+    }
+
+    public function receiveStderr($event)
+    {
+        echo "[STDERR] {$event->line}";
     }
 
     public static function loadConfig()
