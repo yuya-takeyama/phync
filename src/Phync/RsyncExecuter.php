@@ -109,6 +109,16 @@ class Phync_RsyncExecuter
                     'line' => $line,
                     'path' => $path,
                 ));
+            } else if ($this->isDeleteFileLine($line, $path)) {
+                $this->dispatcher->dispatch('stdout.delete_file_line', array(
+                    'line' => $line,
+                    'path' => $path,
+                ));
+            } else if ($this->isDeleteDirLine($line, $path)) {
+                $this->dispatcher->dispatch('stdout.delete_dir_line', array(
+                    'line' => $line,
+                    'path' => $path,
+                ));
             } else {
                 $this->dispatcher->dispatch('stdout.normal_line', array(
                     'line' => $line,
@@ -171,6 +181,18 @@ class Phync_RsyncExecuter
     {
         $this->throwIfNotCallable($callback);
         $this->dispatcher->on('stdout.upload_symlink_line', $callback);
+    }
+
+    public function onDeleteFileLine($callback)
+    {
+        $this->throwIfNotCallable($callback);
+        $this->dispatcher->on('stdout.delete_file_line', $callback);
+    }
+
+    public function onDeleteDirLine($callback)
+    {
+        $this->throwIfNotCallable($callback);
+        $this->dispatcher->on('stdout.delete_dir_line', $callback);
     }
 
     private function throwIfNotCallable($callback)
@@ -257,6 +279,36 @@ class Phync_RsyncExecuter
                 } else {
                     return false;
                 }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function isDeleteFileLine($line, &$path)
+    {
+        if ($this->isInFileList()) {
+            if (preg_match('/^deleting (.*[^\/])\n$/', $line, $matches)) {
+                $parsedPath = $matches[1];
+                $path = $parsedPath;
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function isDeleteDirLine($line, &$path)
+    {
+        if ($this->isInFileList()) {
+            if (preg_match('/^deleting (.*\/)\n$/', $line, $matches)) {
+                $parsedPath = $matches[1];
+                $path = $parsedPath;
+                return true;
             } else {
                 return false;
             }

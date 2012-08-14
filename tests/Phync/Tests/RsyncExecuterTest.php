@@ -227,4 +227,79 @@ class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
         $this->assertNull($toPath);
     }
 
+    /**
+     * @test
+     */
+    public function isDeleteFileLine_ファイルの削除を示す行であればtrue()
+    {
+        $this->executer->setInFileList();
+        $this->assertTrue($this->executer->isDeleteFileLine("deleting path/to/file\n", $path));
+    }
+
+    /**
+     * @test
+     */
+    public function isDeleteFileLine_ファイルの削除を示す行であれば変数pathにパス名をセットする()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isDeleteFileLine("deleting path/to/file\n", $path);
+        $this->assertEquals('path/to/file', $path);
+    }
+
+    /**
+     * @test
+     */
+    public function isDeleteFileLine_ファイルの削除を示す行でなければfalse()
+    {
+        $this->executer->setInFileList();
+        $this->assertFalse($this->executer->isDeleteFileLine("path/to/file\n", $path));
+    }
+
+    /**
+     * @test
+     */
+    public function isDeleteFileLine_ディレクトリ削除成を示す行でなければ変数pathはNULL()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isDeleteFileLine("path/to/file\n", $path);
+        $this->assertNull($path);
+    }
+
+    /**
+     * @test
+     */
+    public function isDeleteDirLine_ディレクトリの削除を示す行であればtrue()
+    {
+        $this->executer->setInFileList();
+        $this->assertTrue($this->executer->isDeleteDirLine("deleting path/to/dir/\n", $path));
+    }
+
+    /**
+     * @test
+     */
+    public function isDeleteDirLine_ディレクトリの削除を示す行であれば変数pathにパス名をセットする()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isDeleteDirLine("deleting path/to/dir/\n", $path);
+        $this->assertEquals('path/to/dir/', $path);
+    }
+
+    /**
+     * @test
+     */
+    public function isDeleteDirLine_ディレクトリの削除を示す行でなければfalse()
+    {
+        $this->executer->setInFileList();
+        $this->assertFalse($this->executer->isDeleteDirLine("path/to/dir/\n", $path));
+    }
+
+    /**
+     * @test
+     */
+    public function isDeleteDirLine_ディレクトリの削除を示す行でなければ変数pathはNULL()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isDeleteDirLine("path/to/dir/\n", $path);
+        $this->assertNull($path);
+    }
 }

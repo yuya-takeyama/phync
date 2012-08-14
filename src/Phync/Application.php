@@ -84,6 +84,8 @@ class Phync_Application
         $this->rsyncExecuter->onUploadFileLine(array($this, 'receiveUploadFileLine'));
         $this->rsyncExecuter->onCreateDirLine(array($this, 'receiveCreateDirLine'));
         $this->rsyncExecuter->onUploadSymlinkLine(array($this, 'receiveUploadSymlinkLine'));
+        $this->rsyncExecuter->onDeleteFileLine(array($this, 'receiveDeleteFileLine'));
+        $this->rsyncExecuter->onDeleteDirLine(array($this, 'receiveDeleteDirLine'));
     }
 
     /**
@@ -174,6 +176,16 @@ class Phync_Application
     public function receiveUploadSymlinkLine($event)
     {
         echo $this->colorizer->color($event->line, 'yellow');
+    }
+
+    public function receiveDeleteFileLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'red');
+    }
+
+    public function receiveDeleteDirLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'red');
     }
 
     public static function loadConfig()
