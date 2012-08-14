@@ -70,7 +70,10 @@ class Phync_Application
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayBeforeExecutionMessage'));
         $this->dispatcher->on('after_all_command_execution', array($this, 'displayExitStatus'));
 
-        $this->rsyncExecuter = new Phync_RsyncExecuter(new Phync_Event_Dispatcher);
+        $this->rsyncExecuter = new Phync_RsyncExecuter(array(
+            'event_dispatcher' => new Phync_Event_Dispatcher,
+            'file_util'        => $this->fileUtil,
+        ));
 
         $this->rsyncExecuter->onStdout(array($this, 'receiveStdout'));
         $this->rsyncExecuter->onStderr(array($this, 'receiveStderr'));

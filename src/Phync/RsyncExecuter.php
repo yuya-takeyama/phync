@@ -22,15 +22,21 @@ class Phync_RsyncExecuter
      */
     private $dispatcher;
 
+    /**
+     * @var bool
+     */
+    private $isInFileList;
 
     /**
      * Construcotr
      *
-     * @param Phync_Event_Dispatcher $dispatcher
+     * @param array $params
      */
-    public function __construct(Phync_Event_Dispatcher $dispatcher)
+    public function __construct($params)
     {
-        $this->dispatcher = $dispatcher;
+        $this->dispatcher   = $params['event_dispatcher'];
+        $this->fileUtil     = $params['file_util'];
+        $this->isInFileList = false;
     }
 
     /**
@@ -81,6 +87,24 @@ class Phync_RsyncExecuter
         $this->dispatcher->dispatch('stdout', array(
             'line' => $line,
         ));
+        if ($this->isInFileList()) {
+            if ($this->isUploadDirLine($line, $path)) {
+                $this->dispatcher->dispatch('stdout.upload_dir', array(
+                    'line' => $line,
+                    'path' => $path,
+                ));
+            } else if ($this->isUploadFileLine($line, $path)) {
+                $this->dispatcher->dispatch('stdout.upload_file', array(
+                    'line' => $line,
+                    'path' => $path,
+                ));
+            }
+        } else {
+            $this->dispatcher->dispatch('stdout.normal');
+        }
+        if (! $this->isInFileList() && preg_match('/^building file list \.\.\./', $line)) {
+            $this->isInFileList = true;
+        }
     }
 
     public function receiveRawStderr($line)
@@ -106,6 +130,36 @@ class Phync_RsyncExecuter
     {
         if (! is_callable($callback)) {
             throw new Phync_Exception_InvalidArgument("Callback must be callable");
+        }
+    }
+
+    /**
+     * ファイル一覧の出力中であるか
+     *
+     * @return bool
+     */
+    public function isInFileList()
+    {
+        return $this->isInFileList;
+    }
+
+    public function setInFileList($flag = true)
+    {
+        $this->isInFileList = $flag;
+    }
+
+    public function isUploadDirLine($line, &$path)
+    {
+        if ($this->isInFileList()) {
+            $parsedPath = chop($line);
+            if ($this->fileUtil->isDir($parsedPath)) {
+                $path = $parsedPath;
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 }
