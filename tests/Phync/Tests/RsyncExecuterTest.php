@@ -25,6 +25,12 @@ class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
         Phake::when($fileUtil)
             ->isDir('path/to/file')
             ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->isFile('path/to/dir/')
+            ->thenReturn(false);
+        Phake::when($fileUtil)
+            ->isFile('path/to/file')
+            ->thenReturn(true);
 
         $this->executer = new Phync_RsyncExecuter(array(
             'event_dispatcher' => new Phync_Event_Dispatcher,
@@ -95,4 +101,43 @@ class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
         $this->executer->isUploadDirLine("path/to/file\n", $path);
         $this->assertNull($path);
     }
+
+    /**
+     * @test
+     */
+    public function isUploadFileLine_ファイルのアップロードを示す行であればtrue()
+    {
+        $this->executer->setInFileList();
+        $this->assertTrue($this->executer->isUploadFileLine("path/to/file\n", $path));
+    }
+
+    /**
+     * @test
+     */
+    public function isUploadFileLine_ファイルのアップロードを示す行であれば変数pathにパス名をセットする()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isUploadFileLine("path/to/file\n", $path);
+        $this->assertEquals('path/to/file', $path);
+    }
+
+    /**
+     * @test
+     */
+    public function isUploadFileLine_ファイルのアップロードを示す行でなければfalse()
+    {
+        $this->executer->setInFileList();
+        $this->assertFalse($this->executer->isUploadFileLine("path/to/dir/\n", $path));
+    }
+
+    /**
+     * @test
+     */
+    public function isUploadFileLine_ファイルのアップロードを示す行でなければ変数pathはNULL()
+    {
+        $this->executer->setInFileList();
+        $this->executer->isUploadFileLine("path/to/dir/\n", $path);
+        $this->assertNull($path);
+    }
+
 }

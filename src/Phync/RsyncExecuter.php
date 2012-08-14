@@ -162,4 +162,19 @@ class Phync_RsyncExecuter
             return false;
         }
     }
+
+    public function isUploadFileLine($line, &$path)
+    {
+        if ($this->isInFileList()) {
+            $parsedPath = chop($line);
+            if ($this->fileUtil->isFile($parsedPath)) {
+                $path = $parsedPath;
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }
