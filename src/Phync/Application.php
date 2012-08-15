@@ -11,10 +11,12 @@
 require_once dirname(__FILE__) . '/Config.php';
 require_once dirname(__FILE__) . '/Option.php';
 require_once dirname(__FILE__) . '/FileUtil.php';
+require_once dirname(__FILE__) . '/Console/Colorizer.php';
 require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
+require_once dirname(__FILE__) . '/RsyncExecuter.php';
 require_once dirname(__FILE__) . '/Exception/ConfigNotFound.php';
 require_once dirname(__FILE__) . '/Exception/InvalidArgument.php';
 require_once dirname(__FILE__) . '/Exception/FileNotFound.php';
@@ -33,6 +35,11 @@ class Phync_Application
      * @var Phync_Event_Dispatcher
      */
     private $dispatcher;
+
+    /**
+     * @var Phync_RsyncExecuter
+     */
+    private $rsyncExecuter;
 
     /**
      * @var Phync_Option
@@ -55,6 +62,7 @@ class Phync_Application
         $this->config     = $params['config'];
         $this->fileUtil   = $params['file_util'];
         $this->dispatcher = new Phync_Event_Dispatcher;
+        $this->colorizer  = new Phync_Console_Colorizer;
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
 
@@ -63,6 +71,21 @@ class Phync_Application
         $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayBeforeExecutionMessage'));
         $this->dispatcher->on('after_all_command_execution', array($this, 'displayExitStatus'));
+
+        $this->rsyncExecuter = new Phync_RsyncExecuter(array(
+            'event_dispatcher' => new Phync_Event_Dispatcher,
+            'file_util'        => $this->fileUtil,
+        ));
+
+        $this->rsyncExecuter->onStdout(array($this, 'receiveStdout'));
+        $this->rsyncExecuter->onStderr(array($this, 'receiveStderr'));
+        $this->rsyncExecuter->onNormalLine(array($this, 'receiveNormalLine'));
+        $this->rsyncExecuter->onUploadDirLine(array($this, 'receiveUploadDirLine'));
+        $this->rsyncExecuter->onUploadFileLine(array($this, 'receiveUploadFileLine'));
+        $this->rsyncExecuter->onCreateDirLine(array($this, 'receiveCreateDirLine'));
+        $this->rsyncExecuter->onUploadSymlinkLine(array($this, 'receiveUploadSymlinkLine'));
+        $this->rsyncExecuter->onDeleteFileLine(array($this, 'receiveDeleteFileLine'));
+        $this->rsyncExecuter->onDeleteDirLine(array($this, 'receiveDeleteDirLine'));
     }
 
     /**
@@ -91,23 +114,78 @@ class Phync_Application
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
         $generator = new Phync_CommandGenerator($this->config, $this->fileUtil);
         $commands  = $generator->getCommands($this->option);
+        $this->executeCommands($commands);
+    }
+
+    private function executeCommands($commands)
+    {
         $this->dispatcher->dispatch('before_all_command_execution', array(
             'app'      => $this,
             'commands' => $commands
         ));
         foreach ($commands as $command) {
-            $this->dispatcher->dispatch('before_command_execution', array(
-                'app'     => $this,
-                'command' => $command,
-            ));
-            passthru($command, $status);
-            $this->dispatcher->dispatch('after_command_execution', array(
-                'app'     => $this,
-                'command' => $command,
-                'status'  => $status
-            ));
+            $this->executeCommand($command);
         }
         $this->dispatcher->dispatch('after_all_command_execution', $this->getEvent());
+    }
+
+    private function executeCommand($command)
+    {
+        $this->dispatcher->dispatch('before_command_execution', array(
+            'app'     => $this,
+            'command' => $command,
+        ));
+        $status = $this->rsyncExecuter->execute($command);
+        $this->dispatcher->dispatch('after_command_execution', array(
+            'app'     => $this,
+            'command' => $command,
+            'status'  => $status
+        ));
+    }
+
+    public function receiveStdout($event)
+    {
+        echo "[STDOUT] ";
+    }
+
+    public function receiveStderr($event)
+    {
+        echo $this->colorizer->color('[STDERR]', 'red') . ' ' . $event->line;
+    }
+
+    public function receiveNormalLine($event)
+    {
+        echo $event->line;
+    }
+
+    public function receiveUploadDirLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'cyan');
+    }
+
+    public function receiveUploadFileLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'green');
+    }
+
+    public function receiveCreateDirLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'yellow');
+    }
+
+    public function receiveUploadSymlinkLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'yellow');
+    }
+
+    public function receiveDeleteFileLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'red');
+    }
+
+    public function receiveDeleteDirLine($event)
+    {
+        echo $this->colorizer->color($event->line, 'red');
     }
 
     public static function loadConfig()
