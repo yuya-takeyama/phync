@@ -23,6 +23,8 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     private static $mockDirs = array(
         '/working-dir',
         '/working-dir/dir',
+        '/working-dir/dir/next-dir',
+        '/working-dir/dir/next-dir/more-dir',
     );
 
     /**
@@ -33,7 +35,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     private static $mockFiles = array(
         '/working-dir/file',
         '/working-dir/another_file',
-        '/working-dir//dir/file',
+        '/working-dir/dir/file',
     );
 
     /**
@@ -42,18 +44,20 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
      * @var array
      */
     private static $mockRealPaths = array(
-        '.'            => '/working-dir',
-        './'           => '/working-dir',
-        'file'         => '/working-dir/file',
-        'file/'        => '/working-dir/file',
-        './file'       => '/working-dir/file',
-        './file/'      => '/working-dir/file',
-        'dir'          => '/working-dir/dir',
-        'dir/'         => '/working-dir/dir',
-        './dir'        => '/working-dir/dir',
-        './dir/'       => '/working-dir/dir',
-        'dir/file'     => '/working-dir/dir/file',
-        'another_file' => '/working-dir/another_file',
+        '.'                     => '/working-dir',
+        './'                    => '/working-dir',
+        'file'                  => '/working-dir/file',
+        'file/'                 => '/working-dir/file',
+        './file'                => '/working-dir/file',
+        './file/'               => '/working-dir/file',
+        'dir'                   => '/working-dir/dir',
+        'dir/'                  => '/working-dir/dir',
+        './dir'                 => '/working-dir/dir',
+        './dir/'                => '/working-dir/dir',
+        'dir/file'              => '/working-dir/dir/file',
+        'another_file'          => '/working-dir/another_file',
+        'dir/next-dir'          => '/working-dir/dir/next-dir',
+        'dir/next-dir/more-dir' => '/working-dir/dir/next-dir/more-dir',
     );
 
     public function setUp()
@@ -155,6 +159,37 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         $this->assertEquals(
             array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/file' --include '/dir/' --exclude '*'"),
             $this->generator->getCommands($option)
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider provideDeepDirPath
+     */
+    public function 深い階層のディレクトリを指定するとき($dir, $command)
+    {
+        $option = $this->createOption($dir);
+        $this->assertEquals(
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' {$command} --exclude '*'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    public function provideDeepDirPath()
+    {
+        return array(
+            array(
+                'dir',
+                "--include '/dir/' --include '/dir/*' --include '/dir/**/*'"
+            ),
+            array(
+                'dir/next-dir',
+                "--include '/dir/' --include '/dir/next-dir/' --include '/dir/next-dir/*' --include '/dir/next-dir/**/*'"
+            ),
+            array(
+                'dir/next-dir/more-dir',
+                "--include '/dir/' --include '/dir/next-dir/' --include '/dir/next-dir/more-dir/' --include '/dir/next-dir/more-dir/*' --include '/dir/next-dir/more-dir/**/*'"
+            ),
         );
     }
 
