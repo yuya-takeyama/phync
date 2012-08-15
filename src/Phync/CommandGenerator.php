@@ -37,7 +37,7 @@ class Phync_CommandGenerator
     {
         $commands = array();
         foreach ($this->config->getDestinations() as $destination) {
-            $command = "rsync -avC";
+            $command = "rsync -av";
             if ($option->isDryRun()) {
                 $command .= " --dry-run";
             }
@@ -115,11 +115,19 @@ class Phync_CommandGenerator
 
     private function generateIncludeOptionForDir($file)
     {
-        $util = $this->fileUtil;
-        $file = $util->getRelativePath($file, $util->getCwd());
+        $util    = $this->fileUtil;
+        $file    = $util->getRelativePath($file, $util->getCwd());
+        $options = '';
+        $names   = explode(DIRECTORY_SEPARATOR, $file);
+        $count   = count($names);
+        $curDir  = '/';
+        for ($i = 0; $i < $count; $i++) {
+            $curDir  .= array_shift($names) . '/';
+            $options .= sprintf(' --include %s', $util->shellescape($curDir));
+        }
         return sprintf(
-            ' --include %s --include %s --include %s',
-            $util->shellescape("/{$file}/"),
+            '%s --include %s --include %s',
+            $options,
             $util->shellescape("/{$file}/*"),
             $util->shellescape("/{$file}/**/*")
         );
