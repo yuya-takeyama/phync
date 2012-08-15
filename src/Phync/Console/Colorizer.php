@@ -47,7 +47,7 @@ class Phync_Console_Colorizer
             $attrs .= self::$styles[$color];
         }
         if ($attrs !== '') {
-            return "\e[{$attrs}m{$text}\e[0m";
+            return "\033[{$attrs}m{$text}\033[0m";
         } else {
             return $text;
         }
