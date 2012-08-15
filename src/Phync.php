@@ -15,5 +15,5 @@ require_once dirname(__FILE__) . '/Phync/Option.php';
 
 class Phync
 {
-    const VERSION = '0.4.0-dev';
+    const VERSION = '0.4.0';
 }
