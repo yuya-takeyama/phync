@@ -28,7 +28,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption();
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
             $this->generator->getCommands($option)
         );
     }
@@ -41,7 +41,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption($cwd);
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
             $this->generator->getCommands($option)
         );
     }
@@ -63,7 +63,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption($file);
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --exclude '*'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -88,7 +88,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption($dir);
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -112,7 +112,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption('dir/file');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/file' --include '/dir/' --exclude '*'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/dir/file' --include '/dir/' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -124,7 +124,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption('file', 'another_file');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/another_file' --exclude '*'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/another_file' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -136,7 +136,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption('file', 'another_file', 'dir');
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/another_file' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/file' --include '/another_file' --include '/dir/' --include '/dir/*' --include '/dir/**/*' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
@@ -148,7 +148,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption('--checksum');
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
+            array("rsync -av --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $this->generator->getCommands($option)
         );
     }
@@ -162,7 +162,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         $option    = $this->createOption();
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
+            array("rsync -av --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }
@@ -176,7 +176,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         $option    = $this->createOption('--checksum');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
+            array("rsync -av --dry-run --checksum --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }
@@ -190,7 +190,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
         $option    = $this->createOption('--no-checksum');
         $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
         $this->assertEquals(
-            array("rsync -avC --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/'"),
             $generator->getCommands($option)
         );
     }

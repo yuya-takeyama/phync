@@ -37,7 +37,7 @@ class Phync_CommandGenerator
     {
         $commands = array();
         foreach ($this->config->getDestinations() as $destination) {
-            $command = "rsync -avC";
+            $command = "rsync -av";
             if ($option->isDryRun()) {
                 $command .= " --dry-run";
             }
