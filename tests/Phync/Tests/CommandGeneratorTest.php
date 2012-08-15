@@ -15,6 +15,47 @@ require_once 'Phync/FileUtil.php';
 
 class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
 {
+    /**
+     * Phync_FileUtil にディレクトリとして扱わせるパス
+     *
+     * @var array
+     */
+    private static $mockDirs = array(
+        '/working-dir',
+        '/working-dir/dir',
+    );
+
+    /**
+     * Phync_FileUtil にファイルとして扱わせるパス
+     *
+     * @var array
+     */
+    private static $mockFiles = array(
+        '/working-dir/file',
+        '/working-dir/another_file',
+        '/working-dir//dir/file',
+    );
+
+    /**
+     * Phync_FileUtil の getRealPath() への入力とその返り値
+     *
+     * @var array
+     */
+    private static $mockRealPaths = array(
+        '.'            => '/working-dir',
+        './'           => '/working-dir',
+        'file'         => '/working-dir/file',
+        'file/'        => '/working-dir/file',
+        './file'       => '/working-dir/file',
+        './file/'      => '/working-dir/file',
+        'dir'          => '/working-dir/dir',
+        'dir/'         => '/working-dir/dir',
+        './dir'        => '/working-dir/dir',
+        './dir/'       => '/working-dir/dir',
+        'dir/file'     => '/working-dir/dir/file',
+        'another_file' => '/working-dir/another_file',
+    );
+
     public function setUp()
     {
         $config = new Phync_Config(array('destinations' => array('localhost')));
@@ -203,60 +244,24 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     private function createMockFileUtil()
     {
         $fileUtil = Phake::partialMock('Phync_FileUtil');
+        foreach (self::$mockDirs as $dir) {
+            Phake::when($fileUtil)
+                ->isDir($dir)
+                ->thenReturn(true);
+        }
+        foreach (self::$mockFiles as $file) {
+            Phake::when($fileUtil)
+                ->isDir($file)
+                ->thenReturn(false);
+        }
+        foreach (self::$mockRealPaths as $relative => $real) {
+            Phake::when($fileUtil)
+                ->getRealPath($relative)
+                ->thenReturn($real);
+        }
         Phake::when($fileUtil)
             ->getCwd()
             ->thenReturn('/working-dir');
-        Phake::when($fileUtil)
-            ->isDir('/working-dir')
-            ->thenReturn(true);
-        Phake::when($fileUtil)
-            ->isDir('/working-dir/file')
-            ->thenReturn(false);
-        Phake::when($fileUtil)
-            ->isDir('/working-dir/another_file')
-            ->thenReturn(false);
-        Phake::when($fileUtil)
-            ->isDir('/working-dir/dir')
-            ->thenReturn(true);
-        Phake::when($fileUtil)
-            ->isDir('/working-dir/dir/file')
-            ->thenReturn(false);
-        Phake::when($fileUtil)
-            ->getRealPath('.')
-            ->thenReturn('/working-dir');
-        Phake::when($fileUtil)
-            ->getRealPath('./')
-            ->thenReturn('/working-dir');
-        Phake::when($fileUtil)
-            ->getRealPath('file')
-            ->thenReturn('/working-dir/file');
-        Phake::when($fileUtil)
-            ->getRealPath('file/')
-            ->thenReturn('/working-dir/file');
-        Phake::when($fileUtil)
-            ->getRealPath('./file')
-            ->thenReturn('/working-dir/file');
-        Phake::when($fileUtil)
-            ->getRealPath('./file/')
-            ->thenReturn('/working-dir/file');
-        Phake::when($fileUtil)
-            ->getRealPath('dir')
-            ->thenReturn('/working-dir/dir');
-        Phake::when($fileUtil)
-            ->getRealPath('dir/')
-            ->thenReturn('/working-dir/dir');
-        Phake::when($fileUtil)
-            ->getRealPath('./dir')
-            ->thenReturn('/working-dir/dir');
-        Phake::when($fileUtil)
-            ->getRealPath('./dir/')
-            ->thenReturn('/working-dir/dir');
-        Phake::when($fileUtil)
-            ->getRealPath('dir/file')
-            ->thenReturn('/working-dir/dir/file');
-        Phake::when($fileUtil)
-            ->getRealPath('another_file')
-            ->thenReturn('/working-dir/another_file');
         return $fileUtil;
     }
 
