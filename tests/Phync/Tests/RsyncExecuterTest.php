@@ -58,9 +58,18 @@ class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
     /**
      * @test
      */
-    public function isInFileList_ファイルリスト一覧の構築後であればtrue()
+    public function isInFileList_ファイルリスト一覧の構築後であればtrue_rsync2()
     {
         $this->executer->receiveRawStdout("building file list ... done\n");
+        $this->assertTrue($this->executer->isInFileList());
+    }
+
+    /**
+     * @test
+     */
+    public function isInFileList_ファイルリスト一覧の構築後であればtrue_rsync3()
+    {
+        $this->executer->receiveRawStdout("sending incremental file list\n");
         $this->assertTrue($this->executer->isInFileList());
     }
 

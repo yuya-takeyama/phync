@@ -129,7 +129,7 @@ class Phync_RsyncExecuter
                 'line' => $line,
             ));
         }
-        if (! $this->isInFileList() && preg_match('/^building file list \.\.\./', $line)) {
+        if (! $this->isInFileList() && preg_match('/^building file list \.\.\.|^sending incremental file list/', $line)) {
             $this->isInFileList = true;
         }
     }
