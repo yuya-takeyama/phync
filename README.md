@@ -51,7 +51,7 @@ Usage
 ```
 $ phync
 # 以下のようなコマンドが生成される
-# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' 
+# rsync -av --dry-run --delete '/project/' 'example.com:/project/'
 ```
 
 引数を指定することで、一部のファイル・ディレクトリのみを対象とすることができます。  
@@ -61,17 +61,17 @@ $ phync
 # ファイル
 $ phync path/to/file
 # 以下のようなコマンドが生成される
-# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --exclude '*'
+# rsync -av --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --exclude '*'
 
 # ディレクトリ
 $ phync path/to/dir
 # 以下のようなコマンドが生成される
-# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
+# rsync -av --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
 
 # 複数まとめて
 $ phync path/to/file path/to/dir
 # 以下のようなコマンドが生成される
-# rsync -avC --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
+# rsync -av --dry-run --delete '/project/' 'example.com:/project/' --include '/path/to/file' --include '/path/to/' --include '/path/' --include '/path/to/dir/' --include '/path/to/dir/*' --include '/path/to/dir/**/*' --exclude '*'
 ```
 
 ### シンクの実行
