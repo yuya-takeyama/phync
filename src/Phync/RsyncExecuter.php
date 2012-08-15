@@ -120,6 +120,9 @@ class Phync_RsyncExecuter
                     'path' => $path,
                 ));
             } else {
+                if ($line === "\n") {
+                    $this->setInFileList(false);
+                }
                 $this->dispatcher->dispatch('stdout.normal_line', array(
                     'line' => $line,
                 ));
@@ -130,7 +133,7 @@ class Phync_RsyncExecuter
             ));
         }
         if (! $this->isInFileList() && preg_match('/^building file list \.\.\.|^sending incremental file list/', $line)) {
-            $this->isInFileList = true;
+            $this->setInFileList();
         }
     }
 

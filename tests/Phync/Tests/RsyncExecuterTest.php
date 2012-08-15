@@ -85,6 +85,16 @@ class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
     /**
      * @test
      */
+    public function isInFileList_空行の後はfalse()
+    {
+        $this->executer->setInFileList();
+        $this->executer->receiveRawStdout("\n");
+        $this->assertFalse($this->executer->isInFileList());
+    }
+
+    /**
+     * @test
+     */
     public function isUploadDirLine_ディレクトリの同期を示す行であればtrue()
     {
         $this->executer->setInFileList();
