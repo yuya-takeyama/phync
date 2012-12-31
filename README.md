@@ -27,7 +27,7 @@ $ git clone https://github.com/yuya-takeyama/phync.git ~/.phync
 GitHub の Subversion インターフェイスを使用すれば `svn` コマンドでもインストールできます。
 
 ```
-$ svn co https://github.com/yuya-takeyama/phync/master ~/.phync
+$ svn co https://github.com/yuya-takeyama/phync/trunk ~/.phync
 ```
 
 ### 各プロジェクトへのインストール
