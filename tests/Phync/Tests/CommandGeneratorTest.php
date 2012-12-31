@@ -287,7 +287,7 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption('/working-dir/path_to/symlink_to_dir');
         $this->assertEquals(
-            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/path_to/' --include '/path_to/symlink_to_dir' --exclude '*'"),
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/path_to/symlink_to_dir' --include '/path_to/' --exclude '*'"),
             $this->generator->getCommands($option)
         );
     }
