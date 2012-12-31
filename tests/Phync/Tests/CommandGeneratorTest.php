@@ -39,6 +39,15 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     );
 
     /**
+     * Phync_FileUtil にディレクトリへのシンボリックリンクとして扱わせるパス
+     *
+     * @var array
+     */
+    private static $mockSymlinksToDir = array(
+        '/working-dir/path_to/symlink_to_dir',
+    );
+
+    /**
      * Phync_FileUtil の getRealPath() への入力とその返り値
      *
      * @var array
@@ -272,6 +281,18 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     }
 
     /**
+     * @test
+     */
+    public function ディレクトリを指すシンボリックリンクはファイルとして扱う()
+    {
+        $option = $this->createOption('/working-dir/path_to/symlink_to_dir');
+        $this->assertEquals(
+            array("rsync -av --dry-run --delete '/working-dir/' 'localhost:/working-dir/' --include '/path_to/symlink_to_dir' --include '/path_to/' --exclude '*'"),
+            $this->generator->getCommands($option)
+        );
+    }
+
+    /**
      * Phync_FileUtil のモックオブジェクトを生成する
      *
      * @return Phync_FileUtil
@@ -279,24 +300,38 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     private function createMockFileUtil()
     {
         $fileUtil = Phake::partialMock('Phync_FileUtil');
+
         foreach (self::$mockDirs as $dir) {
             Phake::when($fileUtil)
                 ->isDir($dir)
                 ->thenReturn(true);
         }
+
         foreach (self::$mockFiles as $file) {
             Phake::when($fileUtil)
                 ->isDir($file)
                 ->thenReturn(false);
         }
+
+        foreach (self::$mockSymlinksToDir as $link) {
+            Phake::when($fileUtil)
+                ->isDir($link)
+                ->thenReturn(true);
+            Phake::when($fileUtil)
+                ->isLink($link)
+                ->thenReturn(true);
+        }
+
         foreach (self::$mockRealPaths as $relative => $real) {
             Phake::when($fileUtil)
                 ->getRealPath($relative)
                 ->thenReturn($real);
         }
+
         Phake::when($fileUtil)
             ->getCwd()
             ->thenReturn('/working-dir');
+
         return $fileUtil;
     }
 
