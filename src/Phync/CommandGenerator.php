@@ -86,7 +86,7 @@ class Phync_CommandGenerator
             if ($file === $util->getCwd()) {
                 continue;
             }
-            if ($util->isDir($file)) {
+            if (!$util->isLink($file) && $util->isDir($file)) {
                 $result .= $this->generateIncludeOptionForDir($file);
                 $includeAdded = true;
             } else {
