@@ -124,4 +124,14 @@ class Phync_Option
     {
         return $this->files;
     }
+
+    /**
+     * 設定ファイルのパスを取得する.
+     *
+     * @return string
+     */
+    public function getConfigFile()
+    {
+        return '.phync' . DIRECTORY_SEPARATOR . 'config.php';
+    }
 }

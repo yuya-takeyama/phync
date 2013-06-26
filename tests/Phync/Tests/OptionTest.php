@@ -134,4 +134,13 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
         $option = $this->createOption();
         $this->assertEquals(array(), $option->getFiles());
     }
+
+    /**
+     * @test
+     */
+    public function getConfigFile_デフォルトの設定ファイルのとき()
+    {
+        $option = $this->createOption();
+        $this->assertEquals('.phync/config.php', $option->getConfigFile());
+    }
 }
