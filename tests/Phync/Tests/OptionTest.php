@@ -9,6 +9,7 @@
  */
 
 require_once 'Phync/Option.php';
+require_once 'Phync/Exception/InvalidCommandLineOption.php';
 
 class Phync_Tests_OptionTest extends Phync_Tests_TestCase
 {
@@ -151,6 +152,17 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
     {
         $file   = 'another-config-file.php';
         $option = $this->createOption("--config={$file}");
+        $this->assertEquals($file, $option->getConfigFile());
+    }
+
+    /**
+     * @test
+     * @expectedException Phync_Exception_InvalidCommandLineOption
+     */
+    public function getConfigFile_configオプションに引数が無いとき()
+    {
+        $file   = 'another-config-file.php';
+        $option = $this->createOption('--config', $file);
         $this->assertEquals($file, $option->getConfigFile());
     }
 }

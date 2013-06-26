@@ -153,6 +153,10 @@ class Phync_Option
      */
     public function setConfigFile($configFile)
     {
+        if ((string)$configFile === '') {
+            throw new Phync_Exception_InvalidCommandLineOption('No config file is specified for --config=FILE option');
+        }
+
         $this->configFile = $configFile;
     }
 }
