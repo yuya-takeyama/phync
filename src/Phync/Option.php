@@ -18,6 +18,8 @@ class Phync_Option
 
     private $checksum;
 
+    private $configFile;
+
     public function __construct($argv)
     {
         $opt = new Console_Getopt;
@@ -25,6 +27,7 @@ class Phync_Option
             'execute',
             'checksum',
             'no-checksum',
+            'config==',
         ));
         $this->options = $options;
         $this->files   = $files;
@@ -59,6 +62,9 @@ class Phync_Option
             break;
         case '--no-checksum':
             $this->setChecksum(false);
+            break;
+        case '--config':
+            $this->setConfigFile($value);
             break;
         }
     }
@@ -123,5 +129,34 @@ class Phync_Option
     public function getFiles()
     {
         return $this->files;
+    }
+
+    /**
+     * 設定ファイルのパスを取得する.
+     *
+     * @return string
+     */
+    public function getConfigFile()
+    {
+        if (is_null($this->configFile)) {
+            return '.phync' . DIRECTORY_SEPARATOR . 'config.php';
+        } else {
+            return $this->configFile;
+        }
+    }
+
+    /**
+     * 設定ファイルのパスをセットする.
+     *
+     * @param  string
+     * @return void
+     */
+    public function setConfigFile($configFile)
+    {
+        if ((string)$configFile === '') {
+            throw new Phync_Exception_InvalidCommandLineOption('No config file is specified for --config=FILE option');
+        }
+
+        $this->configFile = $configFile;
     }
 }

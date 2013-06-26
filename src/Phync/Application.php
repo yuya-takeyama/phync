@@ -52,6 +52,11 @@ class Phync_Application
     private $config;
 
     /**
+     * @var string
+     */
+    private $configFile;
+
+    /**
      * Constructor.
      *
      * @param array $params
@@ -59,6 +64,7 @@ class Phync_Application
     public function __construct($params)
     {
         $this->option     = $params['option'];
+        $this->configFile = $this->option->getConfigFile();
         $this->config     = $params['config'];
         $this->fileUtil   = $params['file_util'];
         $this->dispatcher = new Phync_Event_Dispatcher;
@@ -66,6 +72,7 @@ class Phync_Application
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
 
+        $this->dispatcher->on('after_config_loading', array($this, 'displayConfigFilePath'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayCommands'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
@@ -94,9 +101,10 @@ class Phync_Application
     public static function start()
     {
         try {
+            $option = new Phync_Option($_SERVER['argv']);
             $self = new self(array(
-                'option'    => new Phync_Option($_SERVER['argv']),
-                'config'    => self::loadConfig(),
+                'option'    => $option,
+                'config'    => self::loadConfig($option->getConfigFile()),
                 'file_util' => new Phync_FileUtil,
             ));
             return $self->run();
@@ -188,9 +196,8 @@ class Phync_Application
         echo $this->colorizer->color($event->line, 'red');
     }
 
-    public static function loadConfig()
+    public static function loadConfig($file)
     {
-        $file = '.phync' . DIRECTORY_SEPARATOR . 'config.php';
         if (file_exists($file) && is_readable($file)) {
             $config = include $file;
             try {
@@ -251,6 +258,11 @@ __USAGE__;
     public function getEvent()
     {
         return new Phync_Event_Event(array('app' => $this));
+    }
+
+    public function displayConfigFilePath($event)
+    {
+        echo 'Loaded config file: ' . $this->configFile, PHP_EOL;
     }
 
     public static function validateFiles($event)

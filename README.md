@@ -27,7 +27,7 @@ $ git clone https://github.com/yuya-takeyama/phync.git ~/.phync
 GitHub の Subversion インターフェイスを使用すれば `svn` コマンドでもインストールできます。
 
 ```
-$ svn co https://github.com/yuya-takeyama/phync/master ~/.phync
+$ svn co https://github.com/yuya-takeyama/phync/trunk ~/.phync
 ```
 
 ### 各プロジェクトへのインストール
@@ -123,6 +123,10 @@ rsync\_path      |`rsync` コマンドの `--rsync-path` オプション。     
 rsh              |`rsync` コマンドの `--rsh` オプション。                                                         |No  |`'/usr/bin/rsync'`                                   |
 default\_checksum|`true` にすると `rsync` コマンドに `--checksum` オプションが付加される。デフォルトは `false`。  |No  |`true`                                               |
 log\_directory   |ログファイルを保存するディレクトリのパス。でフォルトは `.phync/log`                             |No  |`'/path/to/log-directory'`                           |
+
+### 設定ファイルパスの指定
+
+v0.5.0 より `--config=FILE` オプションを指定することで、デフォルトとは別の設定ファイルを読み込めるようになりました。
 
 Author
 ------
