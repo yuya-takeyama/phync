@@ -118,6 +118,7 @@ return array(
 項目名           |説明                                                                                            |必須|設定例                                               |
 -----------------|------------------------------------------------------------------------------------------------|----|-----------------------------------------------------|
 destinations     |シンク先サーバのホスト名を配列で指定する。                                                      |Yes |`array('server1.example.net', 'server2.example.net')`|
+ssh\_user        |対象ホストへの接続に使用する SSH ユーザ名。                                                     |No  |`'testuser'`                                         |
 exclude\_from    |`rsync` コマンドの `--exclude-from` オプション。除外ファイルの一覧を記述したファイルを指定する。|No  |`dirname(__FILE__) . '/rsync_exclude'`               |
 rsync\_path      |`rsync` コマンドの `--rsync-path` オプション。                                                  |No  |`'/usr/bin/rsync'`                                   |
 rsh              |`rsync` コマンドの `--rsh` オプション。                                                         |No  |`'/usr/bin/rsync'`                                   |
