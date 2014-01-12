@@ -1,6 +1,9 @@
 Phync
 =====
 
+develop: [![Build Status](https://travis-ci.org/yuya-takeyama/phync.png?branch=develop)](https://travis-ci.org/yuya-takeyama/phync)
+master: [![Build Status](https://travis-ci.org/yuya-takeyama/phync.png?branch=master)](https://travis-ci.org/yuya-takeyama/phync)
+
 PHP による `rsync` ラッパ
 
 Features
