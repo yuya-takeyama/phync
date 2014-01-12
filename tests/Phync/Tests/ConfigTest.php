@@ -49,4 +49,23 @@ class Phync_Tests_ConfigTest extends Phync_Tests_TestCase
         $config = new Phync_Config($this->defaultConfigValues);
         $this->assertFalse($config->isDefaultChecksum());
     }
+
+    /**
+     * @test
+     */
+    public function getSshUserName_でフォルトはfalse()
+    {
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertNull($config->getSshUserName());
+    }
+
+    /**
+     * @test
+     */
+    public function getSshUserName_ssh_userが指定されているとき()
+    {
+        $this->defaultConfigValues['ssh_user'] = 'testuser';
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertEquals('testuser', $config->getSshUserName());
+    }
 }
