@@ -59,18 +59,25 @@ class Phync_CommandGenerator
             $commands[] = sprintf(
                 '%s %s%s',
                 $command,
-                $this->getArgsToSyncCwd($destination),
+                $this->getArgsToSyncCwd($destination, $this->config->getSshUserName()),
                 $this->getArgsForSpecificFiles($option->getFiles())
             );
         }
         return $commands;
     }
 
-    public function getArgsToSyncCwd($destination)
+    public function getArgsToSyncCwd($destination, $sshUserName)
     {
         $util = $this->fileUtil;
         $path = $util->getRealPath($util->getCwd()) . DIRECTORY_SEPARATOR;
-        return sprintf('%s %s', $util->shellescape($path), $util->shellescape("{$destination}:{$path}"));
+        $destinationWithSshUserName = $sshUserName ?
+            "{$sshUserName}@{$destination}" :
+            $destination;
+        return sprintf(
+            '%s %s',
+            $util->shellescape($path),
+            $util->shellescape("{$destinationWithSshUserName}:{$path}")
+        );
     }
 
     public function getArgsForSpecificFiles($files)

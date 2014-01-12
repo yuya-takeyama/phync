@@ -80,4 +80,12 @@ class Phync_Config
     {
         return $this->config['log_directory'];
     }
+
+    public function getSshUserName()
+    {
+        return array_key_exists('ssh_user', $this->config) &&
+            (string)$this->config['ssh_user'] !== '' ?
+            $this->config['ssh_user'] :
+            NULL;
+    }
 }

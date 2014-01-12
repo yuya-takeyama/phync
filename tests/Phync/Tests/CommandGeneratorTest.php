@@ -283,6 +283,20 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
     /**
      * @test
      */
+    public function SSHユーザ名が設定されているとき()
+    {
+        $config = $this->createConfigWithSshUserName('testuser');
+        $option    = $this->createOption();
+        $generator = new Phync_CommandGenerator($config, $this->createMockFileUtil());
+        $this->assertEquals(
+            array("rsync -av --dry-run --delete '/working-dir/' 'testuser@localhost:/working-dir/'"),
+            $generator->getCommands($option)
+        );
+    }
+
+    /**
+     * @test
+     */
     public function ディレクトリを指すシンボリックリンクはファイルとして扱う()
     {
         $option = $this->createOption('/working-dir/path_to/symlink_to_dir');
@@ -346,6 +360,20 @@ class Phync_Tests_CommandGeneratorTest extends Phync_Tests_TestCase
             'destinations' => array('localhost')
         ));
         Phake::when($config)->isDefaultChecksum()->thenReturn(true);
+        return $config;
+    }
+
+    /**
+     * SSH ユーザ名の設定を持つ Phync_Config オブジェクトを生成する
+     *
+     * @return Phync_Config
+     */
+    private function createConfigWithSshUserName($sshUserName)
+    {
+        $config = Phake::partialMock('Phync_Config', array(
+            'destinations' => array('localhost')
+        ));
+        Phake::when($config)->getSshUserName()->thenReturn($sshUserName);
         return $config;
     }
 }
