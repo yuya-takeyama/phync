@@ -15,6 +15,7 @@ require_once dirname(__FILE__) . '/Console/Colorizer.php';
 require_once dirname(__FILE__) . '/Event/Dispatcher.php';
 require_once dirname(__FILE__) . '/Event/Event.php';
 require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
+require_once dirname(__FILE__) . '/Logger/FileDiffLogger.php';
 require_once dirname(__FILE__) . '/CommandGenerator.php';
 require_once dirname(__FILE__) . '/RsyncExecuter.php';
 require_once dirname(__FILE__) . '/Exception/ConfigNotFound.php';
@@ -71,6 +72,7 @@ class Phync_Application
         $this->colorizer  = new Phync_Console_Colorizer;
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
+        $this->dispatcher->addObserver(new Phync_Logger_FileDiffLogger);
 
         $this->dispatcher->on('after_config_loading', array($this, 'displayConfigFilePath'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
@@ -253,6 +255,11 @@ __USAGE__;
     public function getOption()
     {
         return $this->option;
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     public function getEvent()

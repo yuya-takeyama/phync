@@ -80,6 +80,11 @@ class Phync_Option
         $this->dryRun = ((bool)$pred) === false;
     }
 
+    public function setDryRun()
+    {
+        $this->dryRun = true;
+    }
+
     /**
      * ドライランで実行するか.
      *
