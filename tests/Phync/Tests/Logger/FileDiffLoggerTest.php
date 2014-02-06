@@ -44,6 +44,7 @@ __EOS__;
             'phynctest/hello.php',
             'phynctest/test.txt',
             'phynctest/ticket01.gif',
+            'phynctest/directory/hello.link.php',
             'phynctest/directory/test.txt',
         );
         $this->assertSame($expect, $this->logger->extractFileList($message));
