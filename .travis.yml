@@ -12,4 +12,4 @@ before_script:
 
 script: phpunit --coverage-text
 
-after_script: ./bin/run_coveralls -v
+after_script: ./bin/run_coveralls
