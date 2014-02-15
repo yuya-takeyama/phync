@@ -15,7 +15,7 @@ if (version_compare(PHP_VERSION, '5.3', '>=')) {
     );
 } else {
     set_include_path(
-        dirname(__FILE__) . '/../vendor/yuya-takeyama/Phake/src' .
+        dirname(__FILE__) . '/../vendor/mlively/Phake/src' .
         PATH_SEPARATOR .
         get_include_path()
     );
