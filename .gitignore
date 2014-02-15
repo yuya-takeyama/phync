@@ -1,6 +1,7 @@
 *.swp
 /.phync
 /Gemfile.lock
+/composer.lock
 /composer.phar
 /venom.php
 /.bundle
