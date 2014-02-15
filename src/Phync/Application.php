@@ -8,20 +8,6 @@
  * file that was distributed with this source code.
  */
 
-require_once dirname(__FILE__) . '/Config.php';
-require_once dirname(__FILE__) . '/Option.php';
-require_once dirname(__FILE__) . '/FileUtil.php';
-require_once dirname(__FILE__) . '/Console/Colorizer.php';
-require_once dirname(__FILE__) . '/Event/Dispatcher.php';
-require_once dirname(__FILE__) . '/Event/Event.php';
-require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
-require_once dirname(__FILE__) . '/CommandGenerator.php';
-require_once dirname(__FILE__) . '/RsyncExecuter.php';
-require_once dirname(__FILE__) . '/Exception/ConfigNotFound.php';
-require_once dirname(__FILE__) . '/Exception/InvalidArgument.php';
-require_once dirname(__FILE__) . '/Exception/FileNotFound.php';
-require_once dirname(__FILE__) . '/Exception/Abort.php';
-
 /**
  * Phync: Simple rsync wrapper in PHP.
  *
