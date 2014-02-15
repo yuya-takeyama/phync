@@ -7,6 +7,6 @@ php:
   - 5.5
 
 before_script:
-  - ./bin/install.sh
+  - ./bin/setup_phync_development
 
 script: phpunit --coverage-text
