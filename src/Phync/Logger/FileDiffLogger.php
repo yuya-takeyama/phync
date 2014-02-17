@@ -113,18 +113,16 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
     {
         if ($fileUtil->isLink($targetPath)) {
             $this->diff .= "{$targetPath} is link." . PHP_EOL;
-            return;
         } elseif ($fileUtil->isDir($targetPath)) {
             foreach(new DirectoryIterator($targetPath) as $fileOrDir) {
                 $this->getFileDiff($fileOrDir->getPathname(), $rsh, $destinationHost, $fileUtil);
             }
-        } elseif ($fileUtil->isBinary($targetPath)) {
-            $this->diff .= "{$targetPath} is binary." . PHP_EOL;
-            return;
         } elseif ($fileUtil->isFile($targetPath)) {
             $this->diff .= $targetPath . PHP_EOL;
             $this->diff .= `{$rsh} {$destinationHost} cat {$targetPath} 2> /dev/null | diff - {$targetPath}`;
             $this->diff .= PHP_EOL;
         }
+
+        return;
     }
 }

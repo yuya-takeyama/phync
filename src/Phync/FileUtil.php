@@ -42,11 +42,6 @@ class Phync_FileUtil
         return is_link($path);
     }
 
-    public function isBinary($path)
-    {
-        return (preg_match('#\0#', file_get_contents($path)) === 1);
-    }
-
     public function shellescape($arg)
     {
         return escapeshellarg($arg);
