@@ -23,7 +23,9 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
     {
         switch ($event->getName()) {
             case 'after_config_loading':
-                if (!self::$name) $this->getName();
+                if (!self::$name) {
+                    $this->getName();
+                }
                 $this->log = $this->openLogFile($event, self::$name);
                 break;
             case 'before_command_execution':
@@ -85,10 +87,16 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
         $files = array();
         foreach (explode("\n", $message) as $line) {
             // ディレクトリ
-            if (empty($line) || $line === './') continue;
-            if (substr($line, -1, 1) === '/') continue;
+            if (empty($line) || $line === './') {
+                continue;
+            }
+            if (substr($line, -1, 1) === '/') {
+                continue;
+            }
             // ヘッダ、フッタ行
-            if (substr($line, 0, 18) === 'building file list' || substr($line, 0, 5) === 'sent ' || substr($line, 0, 10) === 'total size') continue;
+            if (substr($line, 0, 18) === 'building file list' || substr($line, 0, 5) === 'sent ' || substr($line, 0, 10) === 'total size') {
+                continue;
+            }
             // シンボリックリンク
             if (strpos($line, ' -> ') !== false) {
                 $pos = strpos($line, ' -> ');
