@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+if (version_compare(PHP_VERSION, '5.3', '>=')) {
+    system('composer install');
+} else {
+    system('wget https://raw.github.com/yuya-takeyama/venom/master/venom.php -O venom.php');
+    system('chmod +x venom.php');
+    system('./venom.php');
+}

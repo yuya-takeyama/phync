@@ -7,6 +7,9 @@ php:
   - 5.5
 
 before_script:
-  - ./bin/install.sh
+  - mkdir -p build/logs
+  - ./bin/setup_phync_development
 
 script: phpunit --coverage-text
+
+after_script: ./bin/run_coveralls

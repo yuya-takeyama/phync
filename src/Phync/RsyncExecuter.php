@@ -8,8 +8,6 @@
  * file that was distributed with this source code.
  */
 
-require_once dirname(__FILE__) . '/Exception/InvalidArgument.php';
-
 /**
  * rsync コマンドを実行し、出力に応じてイベントを発生させる
  *

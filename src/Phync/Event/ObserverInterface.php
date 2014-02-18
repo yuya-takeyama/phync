@@ -8,8 +8,6 @@
  * file that was distributed with this source code.
  */
 
-require_once dirname(__FILE__) . '/Event.php';
-
 interface Phync_Event_ObserverInterface
 {
     public function update(Phync_Event_Event $event);

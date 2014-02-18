@@ -8,10 +8,6 @@
  * file that was distributed with this source code.
  */
 
-require_once dirname(__FILE__) . '/../Event/ObserverInterface.php';
-require_once dirname(__FILE__) . '/../Event/Event.php';
-require_once dirname(__FILE__) . '/../FileUtil.php';
-
 class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements Phync_Event_ObserverInterface
 {
     /**
