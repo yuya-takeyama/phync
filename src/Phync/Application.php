@@ -15,6 +15,8 @@
  */
 class Phync_Application
 {
+    const VERSION = '0.5.0';
+
     const STATUS_EXCEPTION = 255;
 
     /**
@@ -105,7 +107,7 @@ class Phync_Application
 
     public function run()
     {
-        echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
+        echo "Phync ver. " . Phync_Application::VERSION, PHP_EOL, PHP_EOL;
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
         $generator = new Phync_CommandGenerator($this->config, $this->fileUtil);
         $commands  = $generator->getCommands($this->option);
