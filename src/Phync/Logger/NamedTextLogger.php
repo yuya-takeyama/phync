@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 class Phync_Logger_NamedTextLogger extends Phync_Logger_AbstractLogger implements Phync_Event_ObserverInterface
 {
     public function update(Phync_Event_Event $event)
