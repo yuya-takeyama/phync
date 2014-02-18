@@ -1,8 +1,10 @@
 *.swp
 /.phync
 /Gemfile.lock
+/build
 /composer.lock
 /composer.phar
+/tests/Phync/Tests/Logger/log
 /venom.php
 /.bundle
 /.venom
