@@ -50,8 +50,8 @@ class Phync_RsyncExecuter
             2 => array('pipe', 'w'),
         );
         $process = proc_open($command, $fdSpecs, $pipes);
-        stream_set_blocking($pipes[1], 1);
-        stream_set_blocking($pipes[2], 1);
+        stream_set_blocking($pipes[1], 0);
+        stream_set_blocking($pipes[2], 0);
 
         if (is_resource($process)) {
             while (feof($pipes[1]) === false || feof($pipes[2]) === false) {
