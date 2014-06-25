@@ -35,48 +35,54 @@ class Phync_CommandGenerator
 
     public function getCommands(Phync_Option $option)
     {
+        $config   = $this->config;
         $commands = array();
-        foreach ($this->config->getDestinations() as $destination) {
+
+
+        foreach ($config->getDestinations() as $destination) {
             $command = "rsync -av";
             if ($option->isDryRun()) {
                 $command .= " --dry-run";
             }
-            if ($this->config->isDefaultChecksum() && ! $option->isChecksumSet()) {
+            if ($config->isDefaultChecksum() && ! $option->isChecksumSet()) {
                 $command .= " --checksum";
             } else if ($option->isChecksum()) {
                 $command .= " --checksum";
             }
             $command .= " --delete";
-            if ($this->config->hasExcludeFrom()) {
-                $command .= ' ' . $this->fileUtil->shellescape("--exclude-from={$this->config->getExcludeFrom()}");
+            if ($config->hasExcludeFrom()) {
+                $command .= ' ' . $this->fileUtil->shellescape("--exclude-from={$config->getExcludeFrom()}");
             }
-            if ($this->config->hasRsyncPath()) {
-                $command .= ' ' . $this->fileUtil->shellescape("--rsync-path={$this->config->getRsyncPath()}");
+            if ($config->hasRsyncPath()) {
+                $command .= ' ' . $this->fileUtil->shellescape("--rsync-path={$config->getRsyncPath()}");
             }
-            if ($this->config->hasRsh()) {
-                $command .= ' ' . $this->fileUtil->shellescape("--rsh={$this->config->getRsh()}");
+            if ($config->hasRsh()) {
+                $command .= ' ' . $this->fileUtil->shellescape("--rsh={$config->getRsh()}");
             }
             $commands[] = sprintf(
                 '%s %s%s',
                 $command,
-                $this->getArgsToSyncCwd($destination, $this->config->getSshUserName()),
+                $this->getArgsToSyncCwd($destination, $config->getSshUserName(), $config->getRemoteTargetDir()),
                 $this->getArgsForSpecificFiles($option->getFiles())
             );
         }
         return $commands;
     }
 
-    public function getArgsToSyncCwd($destination, $sshUserName)
+    public function getArgsToSyncCwd($destination, $sshUserName, $remoteTargetDir)
     {
         $util = $this->fileUtil;
-        $path = $util->getRealPath($util->getCwd()) . DIRECTORY_SEPARATOR;
+
+        $localPath  = $util->getRealPath($util->getCwd()) . DIRECTORY_SEPARATOR;
+        $remotePath = $util->getRealPath($remoteTargetDir ? $remoteTargetDir : $util->getCwd()) . DIRECTORY_SEPARATOR;
+
         $destinationWithSshUserName = $sshUserName ?
             "{$sshUserName}@{$destination}" :
             $destination;
         return sprintf(
             '%s %s',
-            $util->shellescape($path),
-            $util->shellescape("{$destinationWithSshUserName}:{$path}")
+            $util->shellescape($localPath),
+            $util->shellescape("{$destinationWithSshUserName}:{$remotePath}")
         );
     }
 

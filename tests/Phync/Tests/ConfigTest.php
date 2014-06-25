@@ -65,4 +65,23 @@ class Phync_Tests_ConfigTest extends Phync_Tests_TestCase
         $config = new Phync_Config($this->defaultConfigValues);
         $this->assertEquals('testuser', $config->getSshUserName());
     }
+
+    /**
+     * @test
+     */
+    public function getRemoteTargetDir_デフォルトはnull()
+    {
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertNull($config->getRemoteTargetDir());
+    }
+
+    /**
+     * @test
+     */
+    public function getRemoteTargetDir_remote_target_dirが指定されているとき()
+    {
+        $this->defaultConfigValues['remote_target_dir'] = '/specific_target_dir';
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertEquals('/specific_target_dir', $config->getRemoteTargetDir());
+    }
 }

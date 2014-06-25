@@ -88,4 +88,12 @@ class Phync_Config
             $this->config['ssh_user'] :
             NULL;
     }
+
+    public function getRemoteTargetDir()
+    {
+        return array_key_exists('remote_target_dir', $this->config) &&
+            (string)$this->config['remote_target_dir'] !== '' ?
+            $this->config['remote_target_dir'] :
+            NULL;
+    }
 }
