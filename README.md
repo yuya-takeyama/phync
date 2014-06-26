@@ -125,7 +125,7 @@ ssh\_user          |対象ホストへの接続に使用する SSH ユーザ名�
 remote\_target\_dir|リモートの対象ディレクトリへのパス。デフォルトではローカルのカレントと同じパスが対象となる。    |No  |`'/path/to/target-directory'`                        |
 exclude\_from      |`rsync` コマンドの `--exclude-from` オプション。除外ファイルの一覧を記述したファイルを指定する。|No  |`dirname(__FILE__) . '/rsync_exclude'`               |
 rsync\_path        |`rsync` コマンドの `--rsync-path` オプション。                                                  |No  |`'/usr/bin/rsync'`                                   |
-rsh                |`rsync` コマンドの `--rsh` オプション。                                                         |No  |`'/usr/bin/rsh'`                                     |
+rsh                |`rsync` コマンドの `--rsh` オプション。                                                         |No  |`'/usr/bin/ssh'`                                     |
 default\_checksum  |`true` にすると `rsync` コマンドに `--checksum` オプションが付加される。デフォルトは `false`。  |No  |`true`                                               |
 log\_directory     |ログファイルを保存するディレクトリのパス。でフォルトは `.phync/log`                             |No  |`'/path/to/log-directory'`                           |
 
