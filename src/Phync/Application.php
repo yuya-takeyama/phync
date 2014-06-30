@@ -59,7 +59,6 @@ class Phync_Application
         $this->colorizer  = new Phync_Console_Colorizer;
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
-        $this->dispatcher->addObserver(new Phync_Logger_FileDiffLogger);
 
         $this->dispatcher->on('after_config_loading', array($this, 'displayConfigFilePath'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
