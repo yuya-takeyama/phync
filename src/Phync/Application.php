@@ -15,7 +15,7 @@
  */
 class Phync_Application
 {
-    const VERSION = '0.5.0';
+    const VERSION = '0.6.0';
 
     const STATUS_EXCEPTION = 255;
 
