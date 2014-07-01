@@ -7,9 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-require_once 'Phync/Config.php';
-
 class Phync_Tests_ConfigTest extends Phync_Tests_TestCase
 {
     private $defaultConfigValues;
@@ -48,5 +45,43 @@ class Phync_Tests_ConfigTest extends Phync_Tests_TestCase
         $this->defaultConfigValues['default_checksum'] = false;
         $config = new Phync_Config($this->defaultConfigValues);
         $this->assertFalse($config->isDefaultChecksum());
+    }
+
+    /**
+     * @test
+     */
+    public function getSshUserName_でフォルトはfalse()
+    {
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertNull($config->getSshUserName());
+    }
+
+    /**
+     * @test
+     */
+    public function getSshUserName_ssh_userが指定されているとき()
+    {
+        $this->defaultConfigValues['ssh_user'] = 'testuser';
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertEquals('testuser', $config->getSshUserName());
+    }
+
+    /**
+     * @test
+     */
+    public function getRemoteTargetDir_デフォルトはnull()
+    {
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertNull($config->getRemoteTargetDir());
+    }
+
+    /**
+     * @test
+     */
+    public function getRemoteTargetDir_remote_target_dirが指定されているとき()
+    {
+        $this->defaultConfigValues['remote_target_dir'] = '/specific_target_dir';
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertEquals('/specific_target_dir', $config->getRemoteTargetDir());
     }
 }

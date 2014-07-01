@@ -1,0 +1,24 @@
+{
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "phake/phake",
+        "version": "1.0.0",
+        "source": {
+          "url": "https://github.com/mlively/Phake.git",
+          "type": "git",
+          "reference": "23b75dc6710e621ac23157b0890b588062043100"
+        }
+      }
+    }
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "3.7.*",
+    "phake/phake": "1.0.0",
+    "satooshi/php-coveralls": "dev-master"
+  },
+  "autoload": {
+    "psr-0": {"Phync": "src/"}
+  }
+}

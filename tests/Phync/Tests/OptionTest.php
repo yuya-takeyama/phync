@@ -7,9 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-require_once 'Phync/Option.php';
-
 class Phync_Tests_OptionTest extends Phync_Tests_TestCase
 {
     /**
@@ -133,5 +130,35 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
     {
         $option = $this->createOption();
         $this->assertEquals(array(), $option->getFiles());
+    }
+
+    /**
+     * @test
+     */
+    public function getConfigFile_デフォルトの設定ファイルのとき()
+    {
+        $option = $this->createOption();
+        $this->assertEquals('.phync/config.php', $option->getConfigFile());
+    }
+
+    /**
+     * @test
+     */
+    public function getConfigFile_configオプションが指定されているとき()
+    {
+        $file   = 'another-config-file.php';
+        $option = $this->createOption("--config={$file}");
+        $this->assertEquals($file, $option->getConfigFile());
+    }
+
+    /**
+     * @test
+     * @expectedException Phync_Exception_InvalidCommandLineOption
+     */
+    public function getConfigFile_configオプションに引数が無いとき()
+    {
+        $file   = 'another-config-file.php';
+        $option = $this->createOption('--config', $file);
+        $this->assertEquals($file, $option->getConfigFile());
     }
 }

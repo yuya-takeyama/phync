@@ -8,7 +8,6 @@
  * file that was distributed with this source code.
  */
 
-interface Phync_Event_ObserverInterface
+class Phync_Exception_InvalidCommandLineOption extends InvalidArgumentException
 {
-    public function update(Phync_Event_Event $event);
 }

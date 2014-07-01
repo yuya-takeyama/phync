@@ -7,27 +7,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-require_once dirname(__FILE__) . '/../Event/ObserverInterface.php';
-require_once dirname(__FILE__) . '/../Event/Event.php';
-
-class Phync_Logger_NamedTextLogger implements Phync_Event_ObserverInterface
+class Phync_Logger_NamedTextLogger extends Phync_Logger_AbstractLogger implements Phync_Event_ObserverInterface
 {
-    private $name;
-
-    private $log;
-
     public function update(Phync_Event_Event $event)
     {
         switch ($event->getName()) {
         case 'after_config_loading':
-            $this->name = $this->getName();
-            $file  = $event->app->getLogDirectory() . DIRECTORY_SEPARATOR .
-                date('Ymd') . '-' . $this->name . '.log';
-            $this->log = @fopen($file, 'a');
-            if ($this->log === false) {
-                throw new RuntimeException("Failed to open log file: \"{$file}\"");
-            }
+            if (!self::$name) $this->getName();
+            $this->log = $this->openLogFile($event, self::$name);
             break;
         case 'before_command_execution':
             $this->onBeforeCommandExecution($event);
@@ -38,30 +25,20 @@ class Phync_Logger_NamedTextLogger implements Phync_Event_ObserverInterface
         }
     }
 
-    public function getName()
+    public function getName($input = STDIN)
     {
         echo "Your name: ";
         while (true) {
-            $name = fgets(STDIN);
+            $name = fgets($input);
             if (is_string($name)) {
                 $name = chop(preg_replace('/\.+/u', '.', $name));
                 if ($name !== '') {
-                    return $name;
+                    self::$name = $name;
+                    return;
                 }
             }
             echo "Invalid input.", PHP_EOL;
         }
-    }
-
-    public function write($messages)
-    {
-        $messages = func_get_args();
-        $text = date('Y-m-d H:i:s');
-        foreach ($messages as $message) {
-            $text .= "\t" . $message;
-        }
-        $text .= PHP_EOL;
-        fputs($this->log, $text);
     }
 
     public function onBeforeCommandExecution(Phync_Event_Event $event)
@@ -72,12 +49,5 @@ class Phync_Logger_NamedTextLogger implements Phync_Event_ObserverInterface
     public function onAfterCommandExecution(Phync_Event_Event $event)
     {
         $this->write('[STATUS]', (string)$event->status);
-    }
-
-    public function __destruct()
-    {
-        if (is_resource($this->log)) {
-            fclose($this->log);
-        }
     }
 }

@@ -7,11 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-require_once 'Phync/RsyncExecuter.php';
-require_once 'Phync/Event/Dispatcher.php';
-require_once 'Phync/FileUtil.php';
-
 class Phync_Tests_RsyncExecuterTest extends Phync_Tests_TestCase
 {
     private $executer;

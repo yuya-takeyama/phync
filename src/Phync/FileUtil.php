@@ -17,6 +17,16 @@ require_once 'File/Util.php';
  */
 class Phync_FileUtil
 {
+    /**
+     * @var array
+     */
+    private $memo;
+
+    public function __construct()
+    {
+        $this->memo = array();
+    }
+
     public function getRealPath($path)
     {
         return File_Util::realPath($path);
@@ -29,17 +39,38 @@ class Phync_FileUtil
 
     public function isDir($path)
     {
-        return is_dir($path);
+        $args = func_get_args();
+        $key  = $this->_generateCacheKey(__METHOD__, $args);
+
+        if (array_key_exists($key, $this->memo) === false) {
+            $this->memo[$key] = is_dir($path);
+        }
+
+        return $this->memo[$key];
     }
 
     public function isFile($path)
     {
-        return is_file($path);
+        $args = func_get_args();
+        $key  = $this->_generateCacheKey(__METHOD__, $args);
+
+        if (array_key_exists($key, $this->memo) === false) {
+            $this->memo[$key] = is_file($path);
+        }
+
+        return $this->memo[$key];
     }
 
     public function isLink($path)
     {
-        return is_link($path);
+        $args = func_get_args();
+        $key  = $this->_generateCacheKey(__METHOD__, $args);
+
+        if (array_key_exists($key, $this->memo) === false) {
+            $this->memo[$key] = is_link($path);
+        }
+
+        return $this->memo[$key];
     }
 
     public function shellescape($arg)
@@ -59,6 +90,18 @@ class Phync_FileUtil
      */
     public function getCwd()
     {
-        return chop(`pwd`);
+        $args = func_get_args();
+        $key  = $this->_generateCacheKey(__METHOD__, $args);
+
+        if (array_key_exists($key, $this->memo) === false) {
+            $this->memo[$key] = chop(`pwd`);
+        }
+
+        return $this->memo[$key];
+    }
+
+    private function _generateCacheKey($method, $args)
+    {
+        return "{$method}\t" . json_encode($args);
     }
 }

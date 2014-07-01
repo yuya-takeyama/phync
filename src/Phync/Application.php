@@ -8,20 +8,6 @@
  * file that was distributed with this source code.
  */
 
-require_once dirname(__FILE__) . '/Config.php';
-require_once dirname(__FILE__) . '/Option.php';
-require_once dirname(__FILE__) . '/FileUtil.php';
-require_once dirname(__FILE__) . '/Console/Colorizer.php';
-require_once dirname(__FILE__) . '/Event/Dispatcher.php';
-require_once dirname(__FILE__) . '/Event/Event.php';
-require_once dirname(__FILE__) . '/Logger/NamedTextLogger.php';
-require_once dirname(__FILE__) . '/CommandGenerator.php';
-require_once dirname(__FILE__) . '/RsyncExecuter.php';
-require_once dirname(__FILE__) . '/Exception/ConfigNotFound.php';
-require_once dirname(__FILE__) . '/Exception/InvalidArgument.php';
-require_once dirname(__FILE__) . '/Exception/FileNotFound.php';
-require_once dirname(__FILE__) . '/Exception/Abort.php';
-
 /**
  * Phync: Simple rsync wrapper in PHP.
  *
@@ -29,6 +15,8 @@ require_once dirname(__FILE__) . '/Exception/Abort.php';
  */
 class Phync_Application
 {
+    const VERSION = '0.6.0';
+
     const STATUS_EXCEPTION = 255;
 
     /**
@@ -52,6 +40,11 @@ class Phync_Application
     private $config;
 
     /**
+     * @var string
+     */
+    private $configFile;
+
+    /**
      * Constructor.
      *
      * @param array $params
@@ -59,6 +52,7 @@ class Phync_Application
     public function __construct($params)
     {
         $this->option     = $params['option'];
+        $this->configFile = $this->option->getConfigFile();
         $this->config     = $params['config'];
         $this->fileUtil   = $params['file_util'];
         $this->dispatcher = new Phync_Event_Dispatcher;
@@ -66,6 +60,7 @@ class Phync_Application
 
         $this->dispatcher->addObserver(new Phync_Logger_NamedTextLogger);
 
+        $this->dispatcher->on('after_config_loading', array($this, 'displayConfigFilePath'));
         $this->dispatcher->on('after_config_loading', array($this, 'validateFiles'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'displayCommands'));
         $this->dispatcher->on('before_all_command_execution', array($this, 'confirmExecution'));
@@ -94,9 +89,10 @@ class Phync_Application
     public static function start()
     {
         try {
+            $option = new Phync_Option($_SERVER['argv']);
             $self = new self(array(
-                'option'    => new Phync_Option($_SERVER['argv']),
-                'config'    => self::loadConfig(),
+                'option'    => $option,
+                'config'    => self::loadConfig($option->getConfigFile()),
                 'file_util' => new Phync_FileUtil,
             ));
             return $self->run();
@@ -110,7 +106,7 @@ class Phync_Application
 
     public function run()
     {
-        echo "Phync ver. " . Phync::VERSION, PHP_EOL, PHP_EOL;
+        echo "Phync ver. " . Phync_Application::VERSION, PHP_EOL, PHP_EOL;
         $this->dispatcher->dispatch('after_config_loading', $this->getEvent());
         $generator = new Phync_CommandGenerator($this->config, $this->fileUtil);
         $commands  = $generator->getCommands($this->option);
@@ -188,9 +184,8 @@ class Phync_Application
         echo $this->colorizer->color($event->line, 'red');
     }
 
-    public static function loadConfig()
+    public static function loadConfig($file)
     {
-        $file = '.phync' . DIRECTORY_SEPARATOR . 'config.php';
         if (file_exists($file) && is_readable($file)) {
             $config = include $file;
             try {
@@ -248,9 +243,19 @@ __USAGE__;
         return $this->option;
     }
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     public function getEvent()
     {
         return new Phync_Event_Event(array('app' => $this));
+    }
+
+    public function displayConfigFilePath($event)
+    {
+        echo 'Loaded config file: ' . $this->configFile, PHP_EOL;
     }
 
     public static function validateFiles($event)

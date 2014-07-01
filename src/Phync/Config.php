@@ -80,4 +80,20 @@ class Phync_Config
     {
         return $this->config['log_directory'];
     }
+
+    public function getSshUserName()
+    {
+        return array_key_exists('ssh_user', $this->config) &&
+            (string)$this->config['ssh_user'] !== '' ?
+            $this->config['ssh_user'] :
+            NULL;
+    }
+
+    public function getRemoteTargetDir()
+    {
+        return array_key_exists('remote_target_dir', $this->config) &&
+            (string)$this->config['remote_target_dir'] !== '' ?
+            $this->config['remote_target_dir'] :
+            NULL;
+    }
 }
