@@ -1,6 +1,16 @@
 ChangeLog of Phync
 ==================
 
+0.6.0, released 2014-07-01
+--------------------------
+
+- IMPROVE: 設定項目に `ssh_user` を追加
+- MODIFY: `SplaClassLoader` を使用することによる `require_once` の排除
+- CHANGE: PHP 5.3 以降ではパッケージ管理に `Composer` を使用するよう変更 #23
+- IMPROVE: 設定項目に `remote_target_dir` を追加 #25
+- FIX: `rsync` コマンドを `proc_open` で実行したとき、プロセスの出力がブロックする問題を修正 #16 #26
+- IMPROVE: `Phync_FileUtil` クラスの一部メソッドの実行結果キャッシュによる、パフォーマンスの大幅な向上 #27
+
 0.5.0, released 2013-06-26
 --------------------------
 
