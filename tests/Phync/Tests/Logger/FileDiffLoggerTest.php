@@ -46,4 +46,70 @@ __EOS__;
         );
         $this->assertSame($expect, $this->logger->extractFileList($message));
     }
+
+    /**
+     * @test
+     */
+    public function isEnabled_デフォルトはfalse()
+    {
+        $fileUtil = Phake::partialMock('Phync_FileUtil');
+        $option = Phake::partialMock('Phync_Option', array());
+        Phake::when($option)
+            ->isFileDiff()
+            ->thenReturn(false);
+
+        $app = Phake::partialMock('Phync_Application', array(
+            'env'       => array(),
+            'option'    => $option,
+            'config'    => new Phync_Config(array('destinations' => array('localhost'))),
+            'file_util' => $fileUtil,
+        ));
+
+        $event = Phake::partialMock('Phync_Event_Event', array('app' => $app));
+        $this->assertFalse($this->logger->isEnabled($event));
+    }
+
+    /**
+     * @test
+     */
+    public function isEnabled_設定ファイルかコマンドラインオプションで設定されていればtrue()
+    {
+        // 設定ファイル
+        $fileUtil = Phake::partialMock('Phync_FileUtil');
+        $option = Phake::partialMock('Phync_Option', array());
+        Phake::when($option)
+            ->isFileDiff()
+            ->thenReturn(true);
+
+        $app = Phake::partialMock('Phync_Application', array(
+            'env'       => array(),
+            'option'    => $option,
+            'config'    => new Phync_Config(array('destinations' => array('localhost'))),
+            'file_util' => $fileUtil,
+        ));
+
+        $event = Phake::partialMock('Phync_Event_Event', array('app' => $app));
+        $this->assertTrue($this->logger->isEnabled($event));
+
+        // コマンドラインオプション
+        $option = Phake::partialMock('Phync_Option', array());
+        Phake::when($option)
+            ->isFileDiff()
+            ->thenReturn(false);
+
+        $app = Phake::partialMock('Phync_Application', array(
+            'env'       => array(),
+            'option'    => $option,
+            'config'    => new Phync_Config(
+                array(
+                    'destinations'  => array('localhost'),
+                    'file_diff'     => true,
+                )
+            ),
+            'file_util' => $fileUtil,
+        ));
+
+        $event = Phake::partialMock('Phync_Event_Event', array('app' => $app));
+        $this->assertTrue($this->logger->isEnabled($event));
+    }
 }

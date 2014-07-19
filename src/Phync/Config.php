@@ -96,4 +96,9 @@ class Phync_Config
             $this->config['remote_target_dir'] :
             NULL;
     }
+
+    public function isEnabledFileDiff()
+    {
+        return array_key_exists('file_diff', $this->config) && (bool) $this->config['file_diff'];
+    }
 }

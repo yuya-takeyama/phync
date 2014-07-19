@@ -84,4 +84,23 @@ class Phync_Tests_ConfigTest extends Phync_Tests_TestCase
         $config = new Phync_Config($this->defaultConfigValues);
         $this->assertEquals('/specific_target_dir', $config->getRemoteTargetDir());
     }
+
+    /**
+     * @test
+     */
+    public function isEnabledFileDiff_デフォルトはfalse()
+    {
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->assertFalse($config->isEnabledFileDiff());
+    }
+
+    /**
+     * @test
+     */
+    public function isEnabledFileDiff_file_diffがtrueならtrue()
+    {
+        $this->defaultConfigValues['file_diff'] = true;
+        $config = new Phync_Config($this->defaultConfigValues);
+        $this->asserttrue($config->isEnabledFileDiff());
+    }
 }

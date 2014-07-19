@@ -15,8 +15,25 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
      */
     private $diff;
 
+    /**
+     * Status that indicates whether the run already.
+     *
+     * @var boolean
+     */
+    private $executed = false;
+
+    private $enabled;
+
     public function update(Phync_Event_Event $event)
     {
+        if ($this->isEnabled($event) === false) {
+            return;
+        }
+
+        if ($this->executed === true) {
+            return;
+        }
+
         switch ($event->getName()) {
             case 'after_config_loading':
                 if (!self::$name) {
@@ -48,15 +65,16 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
         }
 
         $this->write('[DIFF]', PHP_EOL . $this->diff);
+        $this->executed = true;
     }
 
     /**
-     * ファイル一覧を取得
-     * exclude_from 設定を反映した結果を取得するために dry-run 結果からファイル名を抽出する
-     * 
-     * @param   Phync_Event_Event
-     * @param   Phync_Config
-     * @param   Phync_FileUtil
+     * Returns target file list.
+     * Performing a dry-run in order to obtain a result reflecting the settings for 'exclude_from'.
+     *
+     * @param   Phync_Event_Event   $event
+     * @param   Phync_Config        $config
+     * @param   Phync_FileUtil      $fileUtil
      * @return  array
      * @access  public
      */
@@ -72,28 +90,28 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
     }
 
     /**
-     * dry-run 結果出力からファイル名を抽出
+     * Extracts file list from result of dry-run.
      *
-     * @param   string
-     * @return  array
+     * @param   string  $message
+     * @return  array   $files
      * @access  public
      */
     public function extractFileList($message)
     {
         $files = array();
         foreach (explode("\n", $message) as $line) {
-            // ディレクトリ
+            // directory
             if (empty($line) || $line === './') {
                 continue;
             }
             if (substr($line, -1, 1) === '/') {
                 continue;
             }
-            // ヘッダ、フッタ行
+            // header, footer
             if (substr($line, 0, 18) === 'building file list' || substr($line, 0, 5) === 'sent ' || substr($line, 0, 10) === 'total size') {
                 continue;
             }
-            // シンボリックリンク
+            // symlink
             if (strpos($line, ' -> ') !== false) {
                 $pos = strpos($line, ' -> ');
                 $files[] = substr($line, 0, $pos);
@@ -105,6 +123,15 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
         return $files;
     }
 
+    /**
+     * Returns diff.
+     *
+     * @param   string          $targetPath
+     * @param   string          $rsh
+     * @param   Phync_FileUtil  $destinationHost
+     * @return  void
+     * @access  public
+     */
     public function getFileDiff($targetPath, $rsh, $destinationHost, Phync_FileUtil $fileUtil)
     {
         if ($fileUtil->isLink($targetPath)) {
@@ -120,5 +147,23 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
         }
 
         return;
+    }
+
+    /**
+     * Determines whether or not to use the FileDiffLogger.
+     * and the result is cached.
+     *
+     * @param   Phync_Event_Event   $event
+     * @return  bool
+     */
+    public function isEnabled($event)
+    {
+        if (is_null($this->enabled)) {
+            $config = $event->app->getConfig()->isEnabledFileDiff();
+            $option = $event->app->getOption()->isFileDiff();
+            $this->enabled = ($config || $option) ? true : false;
+        }
+
+        return $this->enabled;
     }
 }

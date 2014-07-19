@@ -127,7 +127,8 @@ exclude\_from      |`rsync` コマンドの `--exclude-from` オプション。�
 rsync\_path        |`rsync` コマンドの `--rsync-path` オプション。                                                  |No  |`'/usr/bin/rsync'`                                   |
 rsh                |`rsync` コマンドの `--rsh` オプション。                                                         |No  |`'/usr/bin/ssh'`                                     |
 default\_checksum  |`true` にすると `rsync` コマンドに `--checksum` オプションが付加される。デフォルトは `false`。  |No  |`true`                                               |
-log\_directory     |ログファイルを保存するディレクトリのパス。でフォルトは `.phync/log`                             |No  |`'/path/to/log-directory'`                           |
+log\_directory     |ログファイルを保存するディレクトリのパス。デフォルトは `.phync/log`                             |No  |`'/path/to/log-directory'`                           |
+file\_diff         |`true` にするとファイルの差分をログに出力する。デフォルトは `false`。                           |No  |`true`                                               |
 
 ### 設定ファイルパスの指定
 
