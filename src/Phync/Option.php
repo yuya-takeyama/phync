@@ -20,6 +20,8 @@ class Phync_Option
 
     private $configFile;
 
+    private $file_diff;
+
     public function __construct($argv)
     {
         $opt = new Console_Getopt;
@@ -28,12 +30,14 @@ class Phync_Option
             'checksum',
             'no-checksum',
             'config==',
+            'file-diff',
         ));
         $this->options = $options;
         $this->files   = $files;
 
         $this->dryRun   = true;
         $this->checksum = NULL;
+        $this->file_diff = false;
 
         $this->parse();
     }
@@ -65,6 +69,9 @@ class Phync_Option
             break;
         case '--config':
             $this->setConfigFile($value);
+            break;
+        case '--file-diff':
+            $this->setFileDiff(true);
             break;
         }
     }
@@ -163,5 +170,26 @@ class Phync_Option
         }
 
         $this->configFile = $configFile;
+    }
+
+    /**
+     * ファイル差分をとるか.
+     *
+     * @retunr bool
+     */
+    public function isFileDiff()
+    {
+        return $this->file_diff;
+    }
+
+    /**
+     * ファイル差分フラグをセットする.
+     *
+     * @param  bool $pred
+     * @return void
+     */
+    public function setFileDiff($pred)
+    {
+        $this->file_diff = (bool)$pred;
     }
 }

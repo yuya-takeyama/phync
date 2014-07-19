@@ -161,4 +161,32 @@ class Phync_Tests_OptionTest extends Phync_Tests_TestCase
         $option = $this->createOption('--config', $file);
         $this->assertEquals($file, $option->getConfigFile());
     }
+
+    /**
+     * @test
+     */
+    public function isFileDiff_デフォルトはfalse()
+    {
+        $option = $this->createOption();
+        $this->assertFalse($option->isFileDiff());
+    }
+
+    /**
+     * @test
+     */
+    public function isFileDiff_file_diffオプションが指定されていればtrue()
+    {
+        $option = $this->createOption('--file-diff');
+        $this->assertTrue($option->isFileDiff());
+    }
+
+    /**
+     * @test
+     */
+    public function isFileDiff_setFileDiffでtrueを指定したらtrueになる()
+    {
+        $option = $this->createOption();
+        $option->setFileDiff(true);
+        $this->assertTrue($option->isFileDiff());
+    }
 }

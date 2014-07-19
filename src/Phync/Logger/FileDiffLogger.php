@@ -22,8 +22,14 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
      */
     private $executed = false;
 
+    private $enabled;
+
     public function update(Phync_Event_Event $event)
     {
+        if ($this->isEnabled($event) === false) {
+            return;
+        }
+
         if ($this->executed === true) {
             return;
         }
@@ -141,5 +147,23 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
         }
 
         return;
+    }
+
+    /**
+     * Determines whether or not to use the FileDiffLogger.
+     * and the result is cached.
+     *
+     * @param   Phync_Event_Event   $event
+     * @return  bool
+     */
+    public function isEnabled($event)
+    {
+        if (is_null($this->enabled)) {
+            $config = $event->app->getConfig()->isEnabledFileDiff();
+            $option = $event->app->getOption()->isFileDiff();
+            $this->enabled = ($config || $option) ? true : false;
+        }
+
+        return $this->enabled;
     }
 }
