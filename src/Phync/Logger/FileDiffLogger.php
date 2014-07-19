@@ -15,8 +15,19 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
      */
     private $diff;
 
+    /**
+     * Status that indicates whether the run already.
+     *
+     * @var boolean
+     */
+    private $executed = false;
+
     public function update(Phync_Event_Event $event)
     {
+        if ($this->executed === true) {
+            return;
+        }
+
         switch ($event->getName()) {
             case 'after_config_loading':
                 if (!self::$name) {
@@ -48,6 +59,7 @@ class Phync_Logger_FileDiffLogger extends Phync_Logger_AbstractLogger implements
         }
 
         $this->write('[DIFF]', PHP_EOL . $this->diff);
+        $this->executed = true;
     }
 
     /**
